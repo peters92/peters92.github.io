@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>github test page</title>
+        <style type="text/css">
+
+            body {
+                font-family: sans-serif;
+                font-weight: bold;
+                font-size: 24pt;
+            }
+
+        </style>
+        <script type="text/javascript" src="d3.min.js"></script>
+    </head>
+    <body>
+        <div class="bar"></div>
+        <script type="text/javascript">
+
+        var dataset = [5, 10, 15, 20, 25];
+        /* Text part */
+        d3.select("body").selectAll("p")
+  			.data(dataset)
+  			.enter()
+  			.append("p")
+  			.text(function(d) {
+            return "I can count up to " + d;
+            })
+            .style("color",function(d)
+                {
+                if (d>15){
+                    return "red";
+                    }
+                else {
+                    return "black";
+                    }
+                }
+            );
+
+        /* SVG part */
+        var svg = d3.select("body").append("svg");
+
+        var w = 500;
+        var h = 140;
+        svg.attr("width", w)
+            .attr("height", h);
+
+
+        var squares = svg.selectAll(squares)
+                            .data(dataset)
+                            .enter()
+                            .append("rect");
+
+        var sq_size = 80;
+        var fill_color = ["purple", "blue", "green", "yellow", "red"];
+        var sq_opacity = [1, 0.8, 0.6, 0.4, 0.2];
+
+        squares.attr("width", sq_size)
+                .attr("height", sq_size)
+                .attr("stroke-width", 2)
+                .attr("stroke", d3.rgb(128,128,128))
+                .attr("fill", function(d,i){
+                    return fill_color[i];
+                })
+                .attr("opacity", function(d,i){
+                    return sq_opacity[i];
+                })
+                .attr("x", function(d){
+                    return d * 10 - 50;
+                })
+                .attr("y", function(d) {
+                    return h - sq_size - (d * 2);
+                });
+        </script>
+    </body>
+</html>
