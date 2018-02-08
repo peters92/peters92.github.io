@@ -1,76 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>chapter 7 exercise</title>
-        <script type="text/javascript" src="d3.min.js"></script>
-    </head>
-    <body>
-        <p>scatter plot woo</p>
-        <script type="text/javascript">
+	<head>
+		<meta charset="utf-8">
+		<title>clicky test</title>
+		<script type="text/javascript" src="../d3.min.js"></script>
+		<style type="text/css">
+			/* No style rules here yet */
+		</style>
+	</head>
+	<body>
+		<p>Click on this text for new random values</p>
+		<script type="text/javascript">
 
+			//Width and height
+			var margin = {top: 20, right: 20, bottom: 20, left: 20};
+			var w = 650 - margin.left - margin.right;
+			var h = 250 - margin.top - margin.bottom;
 
-        var dataset = [ [5, 20], [480, 90], [250, 50], [100, 33], [330, 95],
-                        [410, 12], [475, 44], [25, 67], [85, 21], [220, 88],
-                        [600, 150]
-                        ];
+			var svg = d3.selectAll("body")
+						.append("svg")
+						.attr("width", w + margin.left + margin.right)
+						.attr("height", h + margin.top + margin.bottom)
+						.append("g")
+						.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var margin = {top: 20, right: 20, bottom: 20, left: 20};
-        var w = 500 - margin.left - margin.right;
-        var h = 300 - margin.top - margin.bottom;
+			var dataset = [ 5, 10, 13, 19, 21, 25, 22, 18, 15, 13,
+							11, 12, 15, 20, 18, 17, 16, 18, 23, 25 ];
 
-        var svg = d3.selectAll("body")
-                    .append("svg")
-                    .attr("width", w + margin.left + margin.right)
-                    .attr("height", h + margin.top + margin.bottom)
-                    .append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			var xScale = d3.scaleBand()
+							.domain(d3.range(dataset.length))
+							.rangeRound([0, w])
+							.paddingInner(0.05);
 
-        var xScale = d3.scaleLinear()
-							 .domain([0, d3.max(dataset, function(d) { return d[0]; })])
-							 .range([0, w]);
+			var yScale = d3.scaleLinear()
+							.domain([0, d3.max(dataset)])
+							.range([0, h]);
+			var MaxValue = 100;
+			var colorScale = d3.scaleLinear()
+								.domain([0, MaxValue])
+								.rangeRound([0,255]);
 
-        var yScale = d3.scaleLinear()
-							 .domain([0, d3.max(dataset, function(d) { return d[1]; })])
-							 .range([h, 0]);
-        var rScale = d3.scaleLinear()
-                        .domain([0, d3.max(dataset, function(d) { return d[1]; } )])
-                        .range([2,10]);
+			var trans_duration=500;
+			var easing = d3.easeCubicInOut;
+			//Create bars
+			svg.selectAll("rect")
+			   .data(dataset)
+			   .enter()
+			   .append("rect")
+			   .transition()
+			   .duration(trans_duration)
+			   .ease(easing)
+			   .attr("x", function(d, i) {
+			   		return xScale(i);
+			   })
+			   .attr("y", function(d) {
+			   		return h - yScale(d);
+			   })
+			   .attr("width", xScale.bandwidth())
+			   .attr("height", function(d) {
+			   		return yScale(d);
+			   })
+			   .attr("fill", function(d) {
+					return "rgb(0, 0, " + Math.round(d * 10) + ")";
+			   });
 
+			//Create labels
+			svg.selectAll("text")
+			   .data(dataset)
+			   .enter()
+			   .append("text")
+			   .transition()
+			   .duration(trans_duration)
+			   .ease(easing)
+			   .text(function(d) {
+			   		return d;
+			   })
+			   .attr("text-anchor", "middle")
+			   .attr("x", function(d, i) {
+			   		return xScale(i) + xScale.bandwidth() / 2;
+			   })
+			   .attr("y", function(d) {
+			   		return h - yScale(d) + 14;
+			   })
+			   .attr("font-family", "sans-serif")
+			   .attr("font-size", "11px")
+			   .attr("fill", "white");
 
+		d3.select("p")
+			.on("click", function(){
+			//New values for dataset
+			var numValues = dataset.length;
 
-        svg.selectAll("circle")
-            .data(dataset)
-            .enter()
-            .append("circle")
-            .attr("cx", function(d){
-                return xScale(d[0]);
-            })
-            .attr("cy", function(d){
-                return yScale(d[1]);
-            })
-            .attr("r", function(d){
-                return rScale(d[1]);
-            });
+			dataset = [];
+			for (var i=0; i<numValues; i++){
+				var newVal =Math.floor(Math.random()*MaxValue);
+				dataset.push(newVal);
+			}
+/*			dataset = [ 11, 12, 15, 20, 18, 17, 16, 18, 23, 25,
+						5, 10, 13, 19, 21, 25, 22, 18, 15, 13 ];*/
 
-        svg.selectAll("text")
-           .data(dataset)
-           .enter()
-           .append("text")
-           .text(function(d) {
-                return d[0] + "," + d[1];
-           })
-           .attr("x", function(d){
-               return xScale(d[0]);
-           })
-           .attr("y", function(d){
-               return -2 - rScale(d[1]) + yScale(d[1]);
-           })
-           .attr("font-family", "sans-serif")
-           .attr("font-size", "11px")
-           .attr("fill", "green")
-           .attr("text-anchor", "middle");
+			yScale.domain([0, d3.max(dataset)]);
+			var delay_dur=100;
+			//Update all rects
+			svg.selectAll("rect")
+			   .data(dataset)
+			   .transition()
+			   .delay(function(d,i){
+				   return Math.pow(i,0.7)*delay_dur;;
+			   })
+			   .duration(trans_duration)
+			   .ease(easing)
+			   .attr("y", function(d) {
+			   		return h - yScale(d);
+			   })
+			   .attr("height", function(d) {
+			   		return yScale(d);
+			   })
+			   .attr("fill", function(d) {
+					return "rgb(0, 0, " + colorScale(d) + ")";
+			   });
 
-        </script>
-    </body>
+			//Update all labels
+			svg.selectAll("text")
+			   .data(dataset)
+			   .transition()
+			   .delay(function(d,i){
+				   return Math.pow(i,0.7)*delay_dur;
+			   })
+			   .duration(trans_duration)
+			   .ease(easing)
+			   .text(function(d) {
+			   		return d;
+			   })
+			   .attr("x", function(d, i) {
+			   		return xScale(i) + xScale.bandwidth() / 2;
+			   })
+			   .attr("y", function(d) {
+				   if (d<Math.floor(MaxValue*0.06)) {
+				   	return h - yScale(d) - 2;}
+				   else
+			   		{return h - yScale(d) + 14;}
+			   })
+			   .attr("fill", function(d){
+				   if (d<Math.floor(MaxValue*0.06)) {
+					return "black";}
+				   else {
+					return "white";}
+			   });
+
+			});
+
+		</script>
+	</body>
 </html>
