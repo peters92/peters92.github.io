@@ -145,7 +145,10 @@
 				stroke-width: 8px;
 				cursor: pointer;
 			}
-
+			.bars {
+				rx: 5px;
+				ry: 5px;
+			}
 
 			</style>
 	</head>
@@ -312,6 +315,7 @@
 		   .data(fruit_harvest)
 		   .enter()
 		   .append("rect")
+		   .classed("bars", true)
 		   .transition()
 		   .duration(trans_duration)
 		   .attr("x", function(d, i) {
