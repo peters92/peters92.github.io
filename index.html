@@ -6,109 +6,148 @@
 		<script type="text/javascript" src="../d3.js"></script>
 		<style type="text/css">
 
-		body {
-			font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-			font-size: 10px;
-			color: #202020;
-			background: #FFFFFF;
-			margin: 40px 0 20px 0;
-			padding: 0;
-		}
-
-		a:active, a:focus { outline: 0; }
-
-		#content {
-			width: 770px;
-			margin: 0 auto;
-		}
-
-			#content #header {
-				border-bottom: 3px solid #202020;
+			body {
+				font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+				font-size: 10px;
+				color: #202020;
+				background: #FFFFFF;
+				margin: 40px 0 20px 0;
+				padding: 0;
 			}
 
-				#content #header #top {
-					border-bottom: 1px solid #202020;
-					padding: 0 0 10px 0;
-					position: relative;
-				}
-					#content #header #note p {
-						font-weight: bold;
-						text-transform: uppercase;
-					}
-					#content #header #top p.title {
-						width: 688px;
-						color: #202020;
-						font-family: Georgia;
-						font-size: 72px;
-						font-style: italic;
-						font-weight: normal;
-						letter-spacing: -3px;
-						text-decoration: none;
-						margin: 0;
-					}
+			a:active, a:focus { outline: 0; }
 
-				#content #header #bottom {
-					font-size: 10px;
-					padding: 8px 0;
+			#content {
+				width: 770px;
+				margin: 0 auto;
+			}
+
+				#content #header {
+					border-bottom: 3px solid #202020;
 				}
 
-					#content #header #bottom a {
-						color: #447777;
-						font-weight: bold;
-						text-decoration: none;
+					#content #header #top {
+						border-bottom: 1px solid #202020;
+						padding: 0 0 10px 0;
+						position: relative;
 					}
-			#content #newDay {
-				border-top: 1px solid #202020;
-				padding: 8px 0 0 0;
-			}
+						#content #header #note p {
+							font-weight: bold;
+							text-transform: uppercase;
+						}
+						#content #header #top p.title {
+							width: 688px;
+							color: #202020;
+							font-family: Georgia;
+							font-size: 72px;
+							font-style: italic;
+							font-weight: normal;
+							letter-spacing: -3px;
+							text-decoration: none;
+							margin: 0;
+						}
 
-			#content #newDay .post { margin: 20px 0 70px 0; }
+					#content #header #bottom {
+						font-size: 10px;
+						padding: 8px 0;
+					}
 
-			#content #newDay .date {
-				font-weight: bold;
-				text-transform: uppercase;
-			}
+						#content #header #bottom a {
+							color: #447777;
+							font-weight: bold;
+							text-decoration: none;
+						}
+				#content #newDay {
+					border-top: 1px solid #202020;
+					padding: 8px 0 0 0;
+				}
 
-			#content #newDay h2 {
-				font-family: Georgia;
-				font-size: 36px;
-				letter-spacing: -1px;
-				line-height:1.3;
-				margin: 0;
-			}
+				#content #newDay .post { margin: 20px 0 70px 0; }
 
-				#content #newDay a.h2 {
-					color: #0F6F9F;
+				#content #newDay .date {
+					font-weight: bold;
+					text-transform: uppercase;
+				}
+
+				#content #newDay h2 {
 					font-family: Georgia;
 					font-size: 36px;
-					font-weight: bold;
-					text-decoration: underline;
 					letter-spacing: -1px;
-					line-height: 34px;
+					line-height:1.3;
 					margin: 0;
 				}
 
-				  #content #newDay a.h2.title {
-					color: #202020;
-				  }
+					#content #newDay a.h2 {
+						color: #0F6F9F;
+						font-family: Georgia;
+						font-size: 36px;
+						font-weight: bold;
+						text-decoration: underline;
+						letter-spacing: -1px;
+						line-height: 34px;
+						margin: 0;
+					}
 
-				#content #newDay .quote {
+					  #content #newDay a.h2.title {
+						color: #202020;
+					  }
+
+					#content #newDay .quote {
+						font-family: Georgia;
+						font-size: 24px;
+						line-height: 1.3em;
+					}
+
+				#content #newDay .post {
 					font-family: Georgia;
-					font-size: 24px;
-					line-height: 1.3em;
+					font-size: 14px;
+					line-height: 1.6em;
 				}
 
-			#content #newDay .post {
-				font-family: Georgia;
-				font-size: 14px;
-				line-height: 1.6em;
+					#content #newDay .post a {
+						color: #0F6F9F;
+						text-decoration: none;
+					}
+			/*Formatting figures*/
+			#figure .figtext{
+				font-family: sans-serif;
+				text-anchor: middle;
+				font-weight: bold;
+			}
+			#figure .figtitle{
+				font-size: 17px;
+			}
+			#figure .figlabel{
+				font-size: 16px;
+			}
+			#figure .axis{
+				font-size: 13px;
+			}
+			#figure .axis path,
+					.axis line{
+						stroke-width: 1.6px;
+						shape-rendering: crispEdges;
+					}
+			.fig_hlines{
+				stroke: rgb(90,90,90);
+				stroke-width: 1px;
+				stroke-dasharray: 7,5;
+				stroke-opacity: 0.4
+			}
+			.figure_bg{
+				fill: rgb(252,252,252);
+			}
+			.selector{
+				stroke-width: 4px;
+				fill: "white";
+			}
+			.selector:hover{
+				stroke-width: 8px;
+				cursor: pointer;
 			}
 
-				#content #newDay .post a {
-					color: #0F6F9F;
-					text-decoration: none;
-				}
-		</style>
+
+			</style>
 	</head>
 	<body>
 	<div id="content">
@@ -156,70 +195,125 @@
 	var months = [];
 	var xScale;
 	var yScale;
+	//for debugging
+	var produce = [];
+	var bottom_bar = [];
+	var current_class = [];
+	var current_data = [];
 
 	d3.csv("data.csv", function(data){
 		dataset = data;
-	/*	fruit_harvest = data.slice(0,12);
-		fruit_storage = data.slice(12,24);
-		veg_harvest = data.slice(24,36);
-		veg_storage = data.slice(36,48);*/
 
 		for (var i=0; i<12; i++){
 			months.push(dataset[i].Month);
-			fruit_harvest.push(dataset[i].Count);
-			fruit_storage.push(dataset[i+12].Count);
-			veg_harvest.push(dataset[i+24].Count);
-			veg_storage.push(dataset[i+36].Count);
+			fruit_harvest.push(parseInt(dataset[i].Count));
+			fruit_storage.push(parseInt(dataset[i+12].Count));
+			veg_harvest.push(parseInt(dataset[i+24].Count));
+			veg_storage.push(parseInt(dataset[i+36].Count));
 		}
+		produce = {fresh_fruit: fruit_harvest,
+					fresh_veg: veg_harvest,
+					storage_fruit: fruit_storage,
+					storage_veg: veg_storage};
 
-		var margin = {top: 20, right: 20, bottom: 20, left: 30};
-		var w = 700 - margin.left - margin.right;
-		var h = 250 - margin.top - margin.bottom;
+		var category_colors = {fresh_fruit:"rgb(247,19,18)",
+						fresh_veg: "rgb(39,189,36)",
+						storage_fruit: "rgb(242,115,115)",
+						storage_veg: "rgb(213,222,192)"};
+
+
+		var margin = {top: 60, right: 20, bottom: 50, left: 50};
+		var w = 770 - margin.left - margin.right;
+		var h = 400 - margin.top - margin.bottom;
 
 		var svg = d3.selectAll("#figure")
 					.append("svg")
 					.attr("width", w + margin.left + margin.right)
 					.attr("height", h + margin.top + margin.bottom)
 					.append("g")
-					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+					.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+		svg.append("rect")
+			.attr("x", 0)
+			.attr("y", 0)
+			.attr("width", w)
+			.attr("height", h)
+			.attr("class", "figure_bg");
 
+		var hline_layer = svg.append("g");
+		var bar_layer = svg.append("g");
 		xScale = d3.scaleBand()
 					.domain(months)
 					.rangeRound([0, w])
-					.paddingInner(0.05);
+					.paddingInner(0.40);
 
 		yScale = d3.scaleLinear()
 						.domain([0, d3.max(fruit_harvest)])
 						.range([h, 0]);
-
+		var tickvalues=5;
 		//Define X axis
 		var xAxis = d3.axisBottom()
-						  .scale(xScale)
-						  .ticks(5);
+						  .scale(xScale);
 
 		//Define Y axis
 		var yAxis = d3.axisLeft()
 						  .scale(yScale)
-						  .ticks(5);
+						  .ticks(tickvalues);
+		//Create horizontal lines for easier reading of chart
+		var yticks = yScale.ticks(tickvalues);
+		hline_layer.selectAll("lines")
+			.data(yticks)
+			.enter()
+			.append("line")
+			.attr("class", "fig_hlines")
+			.attr("x1",0)
+			.attr("x2",w)
+			.attr("y1",function(d){
+				return yScale(d);
+			})
+			.attr("y2",function(d){
+				return yScale(d);
+			});
 
-		svg.append("g")
+
+		//Axis related code
+			svg.append("g")
+			.attr("class", "axis")
 			.attr("transform", "translate(0," + h + ")")
 			.call(xAxis);
 
-		svg.append("g")
-			.attr("class","yaxis")
+			//Label for x-axis
+			svg.append("text")
+				.attr("class", "figtext figlabel")
+				.attr("transform", "translate("+ w/2 +","+(h+margin.bottom-5)+")")
+				.text("Months of the year");
+
+				svg.append("g")
+			.attr("class","yaxis axis")
 			.call(yAxis);
 
+			//Label for y-axis
+			svg.append("text")
+				.attr("class", "figtext figlabel")
+				.attr("transform", "rotate(-90)")
+				.attr("x", -h/2 )
+				.attr("y", -margin.left/1.5 )
+				.text("# of Unique Kind of Produce");
+
+		//Adding title
+		svg.append("text")
+			.attr("class", "figtext figtitle")
+			.attr("x", w/2)
+			.attr("y", -margin.top/2)
+			.text("NYC Green Markets - Unique Produce Types");
+
 		var trans_duration=500;
-		var easing = d3.easeCubicInOut;
 		//Create bars
-		svg.selectAll("rect")
+		bar_layer.selectAll("rect")
 		   .data(fruit_harvest)
 		   .enter()
 		   .append("rect")
 		   .transition()
 		   .duration(trans_duration)
-		   .ease(easing)
 		   .attr("x", function(d, i) {
 				return xScale(months[i]);
 		   })
@@ -230,150 +324,137 @@
 		   .attr("height", function(d) {
 				return yScale(0) - yScale(d);
 		   })
-		   .attr("fill", "rgb(254,42,30)");
+		   .attr("fill", category_colors.fresh_fruit);
 
 
 
 	   // Adding text at the bottom for selecting what data to shows
-	   var bottom_bar = d3.selectAll("#figure")
+	   d3.selectAll("#figure")
    					.append("svg")
    					.attr("width", w + margin.left + margin.right)
-   					.attr("height", 50 + margin.top + margin.bottom)
+   					.attr("height", 40 + margin.top/2 + margin.bottom/2)
    					.append("g")
-   					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-		bottom_bar.append("text")
-			.text("Click on the categories below to show the respective data!");
+   					.attr("transform", "translate(" + margin.left + "," + margin.top/2 + ")")
+					.classed("bottom_bar", true);
+
+		var bottom_bar = d3.select(".bottom_bar");
+
 		// Adding separate text elements for all categories
-		bottom_bar.append("g")
-		.attr("id", "fresh_fruit")
-		.attr("transform", "translate(" + 75 + "," + 50 + ")")
-		.append("text")
-		.text("Fresh Fruit")
-		.attr("font-weight","bold");
+		var produce_id = ["fresh_fruit", "fresh_veg", "storage_fruit", "storage_veg"];
+		var produce_text = ["Fresh Fruit", "Fresh Vegetable", "Storage Fruit", "Storage Vegetable"];
 
-		bottom_bar.append("g")
-		.attr("id", "fresh_veg")
-		.attr("transform", "translate(" + 225 + "," + 50 + ")")
-		.append("text")
-		.text("Fresh Vegetable")
-		.attr("font-weight","bold");
+		for (var i=0; i<4; i++)
+			{
+				bottom_bar.append("g")
+					.attr("transform", "translate(" + (30+(w/5)*(1.2*i)) + "," + 0 + ")")
+					.append("circle")
+					.attr("class", function()
+					{
+						return "selector " + produce_id[i];
+					})
+					.attr("cx", 0)
+					.attr("cy", 0)
+					.attr("r", 8)
+					.attr("stroke", category_colors[produce_id[i]])
+					.attr("fill", "white");
 
-		bottom_bar.append("g")
-		.attr("id", "storage_fruit")
-		.attr("transform", "translate(" + 375 + "," + 50 + ")")
-		.append("text")
-		.text("Storage Fruit")
-		.attr("font-weight","bold");
+				bottom_bar.append("g")
+					.attr("transform", "translate(" + (50+(w/5)*(1.2*i)) + "," + 5 + ")")
+					.append("text")
+					.text(produce_text[i])
+					.attr("text-anchor", "top")
+					.attr("font-size", "15")
+					.attr("font-family", "sans-serif");
+			}
 
-		bottom_bar.append("g")
-		.attr("id", "storage_veg")
-		.attr("transform", "translate(" + 525 + "," + 50 + ")")
-		.append("text")
-		.text("Storage Vegetable")
-		.attr("font-weight","bold");
+		//Marking the default selected radio radio_button
+		d3.select(".fresh_fruit")
+			.attr("fill", category_colors.fresh_fruit)
+			.classed("selected", true);
 
+		//Transitions for using different data categories
 
+		bottom_bar.selectAll(".selector")
+					.on("click", selection);
 
-		// Transitions for using different data categories
-		d3.select("#fresh_fruit")
-			.on("click", function(){
+		function selection()
+		{
+			//Getting the selected category's class and data
+			current_class = d3.select(this).attr("class").split(" ")[1];
+			current_data = produce[current_class];
 
-			yScale.domain([0, d3.max(fruit_harvest)]);
+			yScale.domain([0, d3.max(current_data)]);
+			yticks = yScale.ticks(tickvalues);
 			d3.select(".yaxis")
 				.transition()
+				.duration(100)
 				.call(yAxis);
 
-			var trans_duration=500;
-			var easing = d3.easeCubicInOut;
-			//Create bars
-			svg.selectAll("rect")
-			   .data(fruit_harvest)
+			//Updating bars with new data values
+			bar_layer.selectAll("rect")
+			   .data(current_data)
 			   .transition()
 			   .duration(trans_duration)
-			   .ease(easing)
 			   .attr("y", function(d) {
 					return yScale(d);
 			   })
 			   .attr("height", function(d) {
 					return yScale(0) - yScale(d);
 			   })
-			   .attr("fill", "rgb(254,42,30)");
-			});
+			   .attr("fill", category_colors[current_class]);
 
-		d3.select("#fresh_veg")
-			.on("click", function(){
+			   //Updating horizontal guide-lines on the chart
+   			var hlines = hline_layer.selectAll(".fig_hlines")
+         							.data(yticks);
+   			//Removing unnecessary hlines
+   			hlines.exit()
+   					.transition()
+   					.duration(trans_duration/2)
+   					.attr("x2",0)
+   					.remove();
+   			//Adding new lines if needed and updating all lines
+   			hlines.enter()
+   				.append("line")
+   				.attr("class", "fig_hlines")
+   				.attr("x1", 0)
+   				.attr("x2", 0)
+   				.attr("y1", function(d)
+   					{
+   						return yScale(d);
+   					})
+   				.attr("y2", function(d)
+     					{
+     						return yScale(d);
+     					})
+   				.transition()
+				.delay(trans_duration/2)
+				.duration(trans_duration/2)
+				.attr("x2", w)
+			hlines.transition()
+   				.duration(trans_duration)
+   				.attr("y1", function(d)
+     					{
+     						return yScale(d);
+     					})
+     				.attr("y2", function(d)
+     					{
+     						return yScale(d);
+     					});
 
-			yScale.domain([0, d3.max(veg_harvest)]);
-			d3.select(".yaxis")
+			//Updating selector buttons
+			d3.select(".selected")
 				.transition()
-				.call(yAxis);
+				.attr("fill", "white")
+			d3.select(".selected")
+				.classed("selected", false);
 
-			var trans_duration=500;
-			var easing = d3.easeCubicInOut;
-			//Create bars
-			svg.selectAll("rect")
-			   .data(veg_harvest)
-			   .transition()
-			   .duration(trans_duration)
-			   .ease(easing)
-			   .attr("y", function(d) {
-					return yScale(d);
-			   })
-			   .attr("height", function(d) {
-					return yScale(0) - yScale(d);
-			   })
-			   .attr("fill", "rgb(0,142,15)");
-			});
-
-		d3.select("#storage_fruit")
-			.on("click", function(){
-
-			yScale.domain([0, d3.max(fruit_storage)]);
-			d3.select(".yaxis")
+			d3.select(this)
 				.transition()
-				.call(yAxis);
+				.attr("fill",category_colors[current_class])
+			d3.select(this)
+				.classed("selected", true);
+		}
 
-			var trans_duration=500;
-			var easing = d3.easeCubicInOut;
-			//Create bars
-			svg.selectAll("rect")
-			   .data(fruit_storage)
-			   .transition()
-			   .duration(trans_duration)
-			   .ease(easing)
-			   .attr("y", function(d) {
-					return yScale(d);
-			   })
-			   .attr("height", function(d) {
-					return yScale(0) - yScale(d);
-			   })
-			   .attr("fill", "rgb(249,162,165)");
-			});
-
-		d3.select("#storage_veg")
-			.on("click", function(){
-
-			yScale.domain([0, d3.max(veg_storage)]);
-			d3.select(".yaxis")
-				.transition()
-				.call(yAxis);
-
-			var trans_duration=500;
-			var easing = d3.easeCubicInOut;
-			//Create bars
-			svg.selectAll("rect")
-			   .data(veg_storage)
-			   .transition()
-			   .duration(trans_duration)
-			   .ease(easing)
-			   .attr("y", function(d) {
-					return yScale(d);
-			   })
-			   .attr("height", function(d) {
-					return yScale(0) - yScale(d);
-			   })
-			   .attr("fill", "rgb(223,232,201)");
-			});
 	})
 
 
