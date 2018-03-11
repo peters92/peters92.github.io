@@ -1,1091 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Assignment 1</title>
-	<script type="text/javascript" src="../d3.js"></script>
-	<style type="text/css">
+	<head>
+		<meta charset="utf-8">
+		<title>NYC Crimes by Borough</title>
+		<script type="text/javascript" src="/d3/d3.js"></script>
+		<script src="/d3/d3-scale-chromatic.v1.min.js"></script>
+		<style type="text/css">
 
-		body {
-			font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-			font-size: 10px;
-			color: #202020;
-			background: #FFFFFF;
-			margin: 40px 0 20px 0;
-			padding: 0;
-		}
-
-		a:active, a:focus { outline: 0; }
-		.part{
-			border-bottom: 2px solid;
-			background-color: lightgrey;
-		}
-		.title2{
-			color: #202020;
-			font-family: Sans-serif;
-			font-size: 72px;
-			font-style: normal;
-			font-weight: bold;
-			letter-spacing: -3px;
-			text-decoration: none;
-			margin: 0;
-		}
-		.subtitle {
-			color: #202020;
-			font-family: Sans-serif;
-			font-size: 36px;
-			font-style: normal;
-			font-weight: bold;
-			letter-spacing: 0px;
-			text-decoration: none;
-			margin: 0;
-		}
-		.questions{
-			font-family: Georgia;
-			font-size: 14px;
-			line-height: 1.6em;
-		}
-		#content {
-			width: 770px;
-			margin: 0 auto;
-		}
-
-			#content #header {
-				border-bottom: 3px solid #202020;
+			.doughnut_title {
+				text-anchor: middle;
+				font-family: Helvetica, sans-serif;
+				font-size: 18px;
+				fill: black;
 			}
-
-				#content #header #top {
-					border-bottom: 1px solid #202020;
-					padding: 0 0 10px 0;
-					position: relative;
-				}
-					#content #header #note p {
-						font-weight: bold;
-						text-transform: uppercase;
-					}
-					#content #header #top p.title {
-						width: 688px;
-						color: #202020;
-						font-family: Georgia;
-						font-size: 72px;
-						font-style: italic;
-						font-weight: normal;
-						letter-spacing: -3px;
-						text-decoration: none;
-						margin: 0;
-					}
-
-				#content #header #bottom {
-					font-size: 10px;
-					padding: 8px 0;
-				}
-
-					#content #header #bottom a {
-						color: #447777;
-						font-weight: bold;
-						text-decoration: none;
-					}
-			#content #dataviz1 {
-				border-top: 0px solid #202020;
-				padding: 8px 0 0 0;
-			}
-
-			#content #dataviz1 .post { margin: 20px 0 70px 0; }
-
-			#content #dataviz1 .date {
-				font-weight: bold;
-				text-transform: uppercase;
-			}
-
-			#content #dataviz1 h2 {
-				font-family: Georgia;
-				font-size: 36px;
-				letter-spacing: -1px;
-				line-height:1.3;
-				margin: 0;
-			}
-
-				#content #dataviz1 a.h2 {
-					color: #0F6F9F;
-					font-family: Georgia;
-					font-size: 36px;
-					font-weight: bold;
-					text-decoration: underline;
-					letter-spacing: -1px;
-					line-height: 34px;
-					margin: 0;
-				}
-
-				  #content #dataviz1 a.h2.title {
-					color: #202020;
-				  }
-
-				#content #dataviz1 .quote {
-					font-family: Georgia;
-					font-size: 24px;
-					line-height: 1.3em;
-				}
-
-			#content #dataviz1 .post {
-				font-family: Georgia;
+			[class^="label"]{
+				pointer-events: none;
+				font-family: Helvetica, sans-serif;
 				font-size: 14px;
-				line-height: 1.6em;
+				fill: white;
+			}
+			.boro_name{
+				text-anchor: middle;
+				font-family: Helvetica, sans-serif;
+				font-size: 22px;
+				font-weight: bold;
+				fill: black;
 			}
 
-				#content #dataviz1 .post a {
-					color: #0F6F9F;
-					text-decoration: none;
-				}
-		/*Formatting figures*/
-		#figure{
-			border-style: solid;
-			border-width: 1px;
-			border-color: rgb(128,128,128);
-		}
-		.figtext{
-			font-family: sans-serif;
-			text-anchor: middle;
-			font-weight: bold;
-		}
-		.figtitle{
-			font-size: 17px;
-		}
-		.figlabel{
-			font-size: 16px;
-		}
-		.axis{
-			font-size: 13px;
-		}
-		.axis path,
-				.axis line{
-					stroke-width: 1.6px;
-					shape-rendering: crispEdges;
-				}
-		.fig_hlines{
-			stroke: rgb(90,90,90);
-			stroke-width: 1px;
-			stroke-dasharray: 7,5;
-			stroke-opacity: 0.4
-		}
-		.figure_bg{
-			fill: rgb(252,252,252);
-		}
-		.selector{
-			stroke-width: 4px;
-			fill: "white";
-		}
-		.selector:hover{
-			stroke-width: 8px;
-			cursor: pointer;
-		}
-		.bars {
-			rx: 6px;
-			ry: 6px;
-		}
-		.m_line {
-			fill: none;
-			stroke: rgb(23,70,138);
-			stroke-width: 2;
-		}
-		.m_points{
-			fill: rgb(23,70,138);
-			stroke: black;
-			stroke-opacity: 0;
-		}
-		.m_points:hover{
-			cursor: pointer;
-		}
-		.w_line {
-			fill: none;
-			stroke: rgb(228,75,3);
-			stroke-width: 2;
-		}
-		.w_points{
-			fill: rgb(228,75,3);
-			stroke: black;
-			stroke-opacity: 0;
-		}
-		.w_points:hover{
-			cursor: pointer;
-		}
-		.data_points{
-			stroke-width: 4px;
-		}
-		.legend_line{
-			stroke-width: 6px;
-		}
-		.legend{
-			fill: white;
-			stroke: black;
-		}
-		.toggle:hover{
-			cursor: pointer;
-		}
 		</style>
-</head>
-<body>
-<div id="content">
-<!--Part 1: DAOST CH1-->
-<div id="daost1">
-	<div class="part">
-		<p class="title2">Part 1:</p>
-		<p class="subtitle">DAOST Chapter 1 Questions</p>
-	</div>
-	<ul class="questions">
-		<li>Explain in your own words the point of the jitter plot.
-		<br/><b>Answer</b>: The point of this plot is to make dense 1-dimensional data more "readable", by reducing overlap.</li>
-		<li>Explain in your own words the point of figure 2-3.
-		<br/><b>Answer</b>:The point is that we have to be careful when we select anchoring points for histogram bins (as well as the number of them), since minor changes can drastically change what information is visible in the plot.</li>
-		<li>When can KDEs be misleading?
-		<br/><b>Answer</b>:We are worse at judging areas than lengths, so parts of the KDE where area is large might inflate their importance in our eyes. Also, since they "smooth" over the data, they can possibly show some density in value ranges where the real data has no samples at all, or worse, where it doesn't even have physical meaning (e.g negative height or area values).</li>
-		<li>"[CDFs] have less intuitive appeal than histograms of KDEs". What does he mean by that?
-		<br/><b>Answer</b>:They don't represent the data one-to-one visually, so they can appear unintuitive at first glance.</li>
-	    <li>What is a Quantile plot? What is it good for?
-		<br/><b>Answer</b>:It is a plot comparing the quantiles of two datasets against each other, making the comparison of the two distributions easier. (for example: to check if the two datasets come from the same/similar distribution.)</li>
-		<li>How is a Probablity plot defined? What is it useful for? Have you ever seen one before?
-		<br/><b>Answer</b>:In a probability plot we can compare to a theoretical distribution such as a gaussian or a weibull.</li>
-		<li>...Janert is so suspicious of mean, median, and related summary statistics. Explain why one has to be careful when using those - and why visualization of the full data is always better.
-		<br/><b>Answer</b>:These are scalar values, that inherently compress the data a lot which often leads to loss of information as well. Often completely different datasets can end up with the same summary statistics, which in these cases do not carry much useful information.</li>
-		<li>When are box plots most useful?
-		<br/><b>Answer</b>:It's great for getting a simple quick overview of data. It can tell us for example if the data is very skewed or if there are any obvious outliers.</li>
-		<li>The book doesn't mention violin plots. Are those better or worse than box plots? Why?
-		<br/><b>Answer</b>:There is no clear answer to that. In some sense they are better since they retain more information from the original data (since they are essentially KDEs centered on horizontal/vertical line). But they can also appear confusing to some readers so they must be used in the right setting and with the right audience.</li>
-	</ul>
-
-</div>
-<!--Part 2: DAOST CH2-->
-<div id="daost2">
-	<div class="part">
-		<p class="title2">Part 2:</p>
-		<p class="subtitle">DAOST Chapter 2 Questions</p>
-	</div>
-	<ul class="questions">
-		<li>Fig 3-1, Janert writes "the data itself shows clearly that the amount of random noise in the data is small". What do you think his argument is?.
-		<br/><b>Answer</b>:There is a very clear pattern in the figure, and the data points do not deviate visibly and especially not randomly (which would be expected from noise)</li>
-		<li>Can you think of a real-world example of a multivariate relationship like the one in Fig 3-3 (lower right panel)?
-		<br/><b>Answer</b>:</li>
-		<li>What are the two methods Janert metions for smoothing noisy data? Can you think of other ones?
-		<br/><b>Answer</b>:He mentions weighted splines and locally weighted regression. Simple moving averages can also be used.</li>
-		<li>What are residuals? Why is it a good idea to plot the residuals of your fit?
-		<br/><b>Answer</b>:Residuals are the difference between the original data and the fitted/predicted values. It is useful to plot these, since they can show systematic deviation from the original data, for example due to using the wrong kind of model.(e.g first order linear regression model for periodical data) </li>
-	    <li>Explain in your own words the point of the smooth tube in figure 3-7.
-		<br/><b>Answer</b>:The outer dashed lines give a better idea about how good the initial smoothing was, since they will be closer to the original smoothing where the data deviates less from it.</li>
-		<li>What kind of relationships will a semi-log plot help you discover?
-		<br/><b>Answer</b>:They are good at identifying exponential behaviour or for equalizing relative changes.</li>
-		<li>What kind of functions will loglog plots help you see?
-		<br/><b>Answer</b>:These are good for identifying power-law behaviour, by making these close to linear, which would be otherwise practically impossible to visualize in a regular linear plot. </li>
-		<li>What the h#ll is banking and what element from our visual system does it use to help us see patterns? What are potential problems with banking?
-		<br/><b>Answer</b>:Banking is changing the aspect ratio to roughly show 45 degree angles in slopes over the whole data (or sometimes over a subpart by zooming). It uses our visual system's affinity for looking at things or taking in views of roughly 4 to 3 aspect ratio.</li>
-		<li>I think figure 3-14 makes an important point about linear fits that is rarely made. What is it?
-		<br/><b>Answer</b>:The point is that by choosing the dependent and independent variables we already make an assumption about causation which might not be correct and can lead to a different (and maybe) wrong fit of the data.</li>
-		<li>Summarize the discussion of Graphical Analysis and Presentation Graphics on pp. 68-69 in your own words.
-		<br/><b>Answer</b>:One should keep in mind the goal of the work, whether it is for exploratory or explanatory analysis. Based on this, the focus should be either on being agile and open-minded to generate ideas and recognize patterns (exploratory) or should be more rigorous and focused on keeping things simple, self-explanatory, clean and concise.</li>
-	</ul>
-</div>
-<!--Part 3: Viz 1-->
-<div id="dataviz1">
-	<div class="part">
-		<p class="title2">Part 3: Viz 1</p>
-		<p class="subtitle">Re-creating an "I Quant NY" page.</p>
-	</div>
-	<div id="header">
-		<div id="note">
-		<p class="note">
-			Note: This is a reproduction of <a href="http://iquantny.tumblr.com/post/129373499164/this-is-quantifiably-the-best-month-to-go-to-the">this</a> page by Ben Wellington.
-		</p>
-		</div>
-		<div id="top">
-		<p class="title">I Quant NY</p>
-		</div>
-		<div id="bottom">
-		<p>
-			Quantitative Analysis of NYC Open Data: Every data set that the city releases tells a story. This blog is all about telling those stories, one data set at a time.
-		</p>
-		</div>
-	</div>
-	<div class="date">
-		September 18, 2015
-	</div>
-	<div class="post">
-		<a href="http://iquantny.tumblr.com/post/129373499164/this-is-quantifiably-the-best-month-to-go-to-the" class="h2 title">This is Quantifiably the Best Month to go to the Farmers Market</a>
-		<p>
-			As part of a homework assignment, I ask my students at Pratt to go out and chart something of interest to them, and Katherine Savarese came back with a simple chart about farmers markets that I loved- it inspired this post.
-		</p>
-		<p>
-			You probably know that farmers markets are a staple across all five boroughs of New York City, but September happens to be a very special month. Why is that?  Well, it turns out September is the month with the most unique types of fresh produce- forty three to be exact.
-		</p>
-		<p>
-			To show the current offerings, we charted how many types of fruits and vegetables are available by month, and showed if they were fresh or from storage.
-		</p>
-		<div id="figure">
+	</head>
+	<body>
+		
+		<div id="doughnut_div">
 		<script type="text/javascript">
 
-		//Loading dataset
-		var dataset;
-		var fruit_harvest = [];
-		var fruit_storage = [];
-		var veg_harvest = [];
-		var veg_storage = [];
-		var months = [];
-		var xScale;
-		var yScale;
-		//for debugging
-		var produce = [];
-		var bottom_bar = [];
-		var current_class = [];
-		var current_data = [];
+			//Margins and size for doughnut chart SVG
+			var margin_dn = {top: 150, right: 150, bottom: 150, left: 150};
+			var w = 600 - margin_dn.left - margin_dn.right;
+			var h = 600 - margin_dn.top - margin_dn.bottom;
 
-		d3.csv("data.csv", function(data){
-			dataset = data;
+			//Number of crime complaints per borough (calculated previously in Matlab)
+			var crime_per_boro = [103750, 137851, 112919, 92392, 21378];
+			var boros = [ 'Bronx',
+								    'Brooklyn',
+								    'Manhattan',
+										'Queens',
+										'Staten Island'];
+			//Calculating fraction compared to total number of crime complaints
+			var crime_sum = d3.sum(crime_per_boro);
+			var fractions = [];
+			for (var i=0; i<crime_per_boro.length; i++)
+				{
+					fractions.push(crime_per_boro[i]/crime_sum);
+				}
 
-			for (var i=0; i<12; i++){
-				months.push(dataset[i].Month);
-				fruit_harvest.push(parseInt(dataset[i].Count));
-				fruit_storage.push(parseInt(dataset[i+12].Count));
-				veg_harvest.push(parseInt(dataset[i+24].Count));
-				veg_storage.push(parseInt(dataset[i+36].Count));
-			}
-			produce = {fresh_fruit: fruit_harvest,
-						fresh_veg: veg_harvest,
-						storage_fruit: fruit_storage,
-						storage_veg: veg_storage};
+			//Doughnut sizes and arc
+			var outerRadius = w * 0.7;
+			var innerRadius = w * 0.5;
+			var arc = d3.arc()
+						.innerRadius(innerRadius)
+						.outerRadius(outerRadius);
 
-			var category_colors = {fresh_fruit:"rgb(247,19,18)",
-							fresh_veg: "rgb(39,189,36)",
-							storage_fruit: "rgb(242,115,115)",
-							storage_veg: "rgb(213,222,192)"};
+			var pie = d3.pie();
 
+			//Doughnut chart colors, needs d3-scale-chromatic library
+			var color_doughnut = d3.scaleOrdinal(d3.schemeCategory10);
 
-			var margin = {top: 60, right: 20, bottom: 50, left: 50};
-			var w = 770 - margin.left - margin.right;
-			var h = 400 - margin.top - margin.bottom;
-
-			var svg = d3.selectAll("#figure")
+			//Create SVG element
+			var svg_doughnut = d3.select("body")
 						.append("svg")
-						.attr("width", w + margin.left + margin.right)
-						.attr("height", h + margin.top + margin.bottom)
-						.append("g")
-						.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-			svg.append("rect")
-				.attr("x", 0)
-				.attr("y", 0)
-				.attr("width", w)
-				.attr("height", h)
-				.attr("class", "figure_bg");
+						.attr("width", w + margin_dn.left + margin_dn.right)
+						.attr("height", h + margin_dn.top + margin_dn.bottom);
 
-			var hline_layer = svg.append("g");
-			var bar_layer = svg.append("g");
-			xScale = d3.scaleBand()
-						.domain(months)
-						.rangeRound([0, w])
-						.paddingInner(0.40);
+			//Set up groups
+			var arcs = svg_doughnut.selectAll("g.arc")
+						  .data(pie(crime_per_boro))
+						  .enter()
+						  .append("g")
+						  .attr("class", "arc")
+							.attr('id', function(d,i){
+								return i;
+							})
+						  .attr("transform", "translate(" + (margin_dn.left+outerRadius) + "," + (margin_dn.right+outerRadius) + ")");
 
-			yScale = d3.scaleLinear()
-							.domain([0, d3.max(fruit_harvest)])
-							.range([h, 0]);
-			var tickvalues=5;
-			//Define X axis
-			var xAxis = d3.axisBottom()
-							  .scale(xScale);
+			//Draw arc paths
+			var arc_paths = arcs.append("path")
+													.attr('class','arcpath')
+													.attr('id', function(d,i){
+														return i;
+													})
+											    .attr("fill", function(d, i) {
+											    	return color_doughnut(i);
+											    })
+											    .attr("d", arc);
+			//Minimalist browser built-in tooltips, not needed anymore
+			/*arc_paths.append("title")
+					.text(function(d,i) {
+					return 'Number of crimes in ' + boros[i] + ' in 2016: ' + d.value;
+					});*/
 
-			//Define Y axis
-			var yAxis = d3.axisLeft()
-							  .scale(yScale)
-							  .ticks(tickvalues);
-			//Create horizontal lines for easier reading of chart
-			var yticks = yScale.ticks(tickvalues);
-			hline_layer.selectAll("lines")
-				.data(yticks)
-				.enter()
-				.append("line")
-				.attr("class", "fig_hlines")
-				.attr("x1",0)
-				.attr("x2",w)
-				.attr("y1",function(d){
-					return yScale(d);
-				})
-				.attr("y2",function(d){
-					return yScale(d);
-				});
+			//Labels
+			format = d3.format("0.1%");
 
+			arcs.append("text")
+					.attr("class",function(d,i){
+						return "label"+i;
+					})
+			    .attr("transform", function(d) {
+			    	return "translate(" + arc.centroid(d) + ")";
+			    })
+			    .attr("text-anchor", "middle")
+			    .text(function(d,i) {
+			    	return format(fractions[i]);
+			    });
 
-			//Axis related code
-				svg.append("g")
-				.attr("class", "axis")
-				.attr("transform", "translate(0," + h + ")")
-				.call(xAxis);
+			//Adding Text to the middle of the chart
+			doughnut_title = arcs.append("g")
+														.attr("class","doughnut_title_box");
+			doughnut_title.append("text")
+					.attr('class', 'doughnut_title')
+					.text("Crimes in NYC - 2016");
 
-				//Label for x-axis
-				svg.append("text")
-					.attr("class", "figtext figlabel")
-					.attr("transform", "translate("+ w/2 +","+(h+margin.bottom-5)+")")
-					.text("Months of the year");
+			boro_name = arcs.append("text")
+					.attr("class","boro_name")
+					.attr("opacity", 0);
 
-					svg.append("g")
-				.attr("class","yaxis axis")
-				.call(yAxis);
+			//Mouseover events
+			d3.selectAll('.arcpath')
+				.on('mouseover', doughnut_hover);
+			d3.selectAll('.arcpath')
+				.on('mouseout', doughnut_hover_over);
 
-				//Label for y-axis
-				svg.append("text")
-					.attr("class", "figtext figlabel")
-					.attr("transform", "rotate(-90)")
-					.attr("x", -h/2 )
-					.attr("y", -margin.left/1.5 )
-					.text("# of Unique Kind of Produce");
-
-			//Adding title
-			svg.append("text")
-				.attr("class", "figtext figtitle")
-				.attr("x", w/2)
-				.attr("y", -margin.top/2)
-				.text("NYC Green Markets - Unique Produce Types");
-
-			var trans_duration=500;
-			//Create bars
-			bar_layer.selectAll("rect")
-			   .data(fruit_harvest)
-			   .enter()
-			   .append("rect")
-			   .classed("bars", true)
-			   .transition()
-			   .duration(trans_duration)
-			   .attr("x", function(d, i) {
-					return xScale(months[i]);
-			   })
-			   .attr("y", function(d) {
-					return yScale(d);
-			   })
-			   .attr("width", xScale.bandwidth())
-			   .attr("height", function(d) {
-					return yScale(0) - yScale(d);
-			   })
-			   .attr("fill", category_colors.fresh_fruit);
-
-
-
-		   // Adding text at the bottom for selecting what data to shows
-		   d3.selectAll("#figure")
-	   					.append("svg")
-	   					.attr("width", w + margin.left + margin.right)
-	   					.attr("height", 40 + margin.top/2 + margin.bottom/2)
-	   					.append("g")
-	   					.attr("transform", "translate(" + margin.left + "," + margin.top/2 + ")")
-						.classed("bottom_bar", true);
-
-			var bottom_bar = d3.select(".bottom_bar");
-
-			// Adding separate text elements for all categories
-			var produce_id = ["fresh_fruit", "fresh_veg", "storage_fruit", "storage_veg"];
-			var produce_text = ["Fresh Fruit", "Fresh Vegetable", "Storage Fruit", "Storage Vegetable"];
-
-			for (var i=0; i<4; i++)
+			function doughnut_hover()
 				{
-					bottom_bar.append("g")
-						.attr("transform", "translate(" + (30+(w/5)*(1.2*i)) + "," + 0 + ")")
-						.append("circle")
-						.attr("class", function()
-						{
-							return "selector " + produce_id[i];
-						})
-						.attr("cx", 0)
-						.attr("cy", 0)
-						.attr("r", 8)
-						.attr("stroke", category_colors[produce_id[i]])
-						.attr("fill", "white");
+					var dur=500;
+					var id = this.id;
+					arc.innerRadius(innerRadius*1.1)
+							.outerRadius(outerRadius*1.07);
+					d3.select(this)
+						.transition()
+						.duration(dur)
+						.attr('d', arc)
+					arcs.select(".label"+this.id)
+						.transition()
+						.duration(dur)
+						.attr("transform", function(d) {
+				    	return "translate(" + arc.centroid(d) + ")";
+				    })
+						.style('font-size', '16px')
+						.attr('font-weight', 'bold');
+					//Move default title up a bit
+					d3.selectAll(".doughnut_title_box")
+						.transition()
+						.duration(dur)
+						.attr("transform","translate(0,-20)");
+					//Create new text element with borough name
+					boro_name.transition()
+									.duration(dur)
+									.delay(75)
+									.attr("opacity", 1)
+									.attr("transform","translate(0,30)")
+									.text(function(){return crime_per_boro[id]});
+					d3.selectAll(".doughnut_title")
+						.text(function(){return "NYPD Complaints in " + boros[id] + ":"})
 
-					bottom_bar.append("g")
-						.attr("transform", "translate(" + (50+(w/5)*(1.2*i)) + "," + 5 + ")")
-						.append("text")
-						.text(produce_text[i])
-						.attr("text-anchor", "top")
-						.attr("font-size", "15")
-						.attr("font-family", "sans-serif");
+				}
+			function doughnut_hover_over()
+				{
+					arc.innerRadius(innerRadius)
+							.outerRadius(outerRadius);
+
+					var dur=500;
+					d3.select(this)
+						.transition()
+						.duration(dur)
+						.attr('d', arc)
+					arcs.select(".label"+this.id)
+						.transition()
+						.duration(dur)
+						.attr("transform", function(d) {
+				    	return "translate(" + arc.centroid(d) + ")";
+				    })
+						.style('font-size', '14px')
+						.attr('font-weight', 'normal')
+
+					//Move default title back
+					d3.selectAll(".doughnut_title_box")
+						.transition()
+						.delay(100)
+						.duration(dur)
+						.attr("transform","translate(0,0)");
+
+					//Remove boro
+					arcs.selectAll(".boro_name")
+						.transition()
+						.delay(50)
+						.duration(dur)
+						.attr("opacity", 0)
+						.attr("transform","translate(0,0)");
+					d3.selectAll(".doughnut_title")
+						.text("Crimes in NYC - 2016");
+
 				}
 
-			//Marking the default selected radio radio_button
-			d3.select(".fresh_fruit")
-				.attr("fill", category_colors.fresh_fruit)
-				.classed("selected", true);
-
-			//Transitions for using different data categories
-
-			bottom_bar.selectAll(".selector")
-						.on("click", selection);
-
-			function selection()
-			{
-				//Getting the selected category's class and data
-				current_class = d3.select(this).attr("class").split(" ")[1];
-				current_data = produce[current_class];
-
-				yScale.domain([0, d3.max(current_data)]);
-				yticks = yScale.ticks(tickvalues);
-				d3.select(".yaxis")
-					.transition()
-					.duration(100)
-					.call(yAxis);
-
-				//Updating bars with new data values
-				bar_layer.selectAll("rect")
-				   .data(current_data)
-				   .transition()
-				   .duration(trans_duration)
-				   .attr("y", function(d) {
-						return yScale(d);
-				   })
-				   .attr("height", function(d) {
-						return yScale(0) - yScale(d);
-				   })
-				   .attr("fill", category_colors[current_class]);
-
-				   //Updating horizontal guide-lines on the chart
-	   			var hlines = hline_layer.selectAll(".fig_hlines")
-	         							.data(yticks);
-	   			//Removing unnecessary hlines
-	   			hlines.exit()
-	   					.transition()
-	   					.duration(trans_duration/2)
-	   					.attr("x2",0)
-	   					.remove();
-	   			//Adding new lines if needed and updating all lines
-	   			hlines.enter()
-	   				.append("line")
-	   				.attr("class", "fig_hlines")
-	   				.attr("x1", 0)
-	   				.attr("x2", 0)
-	   				.attr("y1", function(d)
-	   					{
-	   						return yScale(d);
-	   					})
-	   				.attr("y2", function(d)
-	     					{
-	     						return yScale(d);
-	     					})
-	   				.transition()
-					.delay(trans_duration/2)
-					.duration(trans_duration/2)
-					.attr("x2", w)
-				hlines.transition()
-	   				.duration(trans_duration)
-	   				.attr("y1", function(d)
-	     					{
-	     						return yScale(d);
-	     					})
-	     				.attr("y2", function(d)
-	     					{
-	     						return yScale(d);
-	     					});
-
-				//Updating selector buttons
-				d3.select(".selected")
-					.transition()
-					.attr("fill", "white")
-				d3.select(".selected")
-					.classed("selected", false);
-
-				d3.select(this)
-					.transition()
-					.attr("fill",category_colors[current_class])
-				d3.select(this)
-					.classed("selected", true);
-			}
-
-		})
-
-
-
-	</script>
-		</div>
-		<p>
-			If you miss the month of September, you might be behind the fruit curve, but there are plenty more months of vegetables left.  The chart shows that fresh vegetables are available 9 out of 12 months, but fruit is only available 5 out of 12. Now if only we could quantify how delicious the produce is…
-		</p>
-		<p>—–</p>
-		<p>
-			Data from: <a href="https://t.umblr.com/redirect?z=http%3A%2F%2Fwww.grownyc.org%2Fgreenmarket%2Fwhatsavailable&t=MWU3YTNhNmYwMDJkNWUwNWQzOTUwMTZjMzJlMGNhM2E3YzdlNTIxMCwxeHM2a1phNg%3D%3D&b=t%3A5jlxwUw4OZ-2SbgNDPgKMQ&p=http%3A%2F%2Fiquantny.tumblr.com%2Fpost%2F129373499164%2Fthis-is-quantifiably-the-best-month-to-go-to-the&m=1">http://www.grownyc.org/greenmarket/whatsavailable</a>
-		</p>
-	</div>
-</div>
-<!--Part 4: Viz 2-->
-<div id="dataviz2">
-		<div class="part">
-			<p class="title2">Part 4: Viz 2</p>
-			<p class="subtitle">Boston Marathon</p>
-		</div>
-		<div id="figure2">
-		<script type="text/javascript">
-
-			//Defining variables here for debugging
-			var marathon = [];
-			var years = [];
-			var man_names = [];
-			var man_times = [];
-			var man_countries = [];
-			var woman_names = [];
-			var woman_times = [];
-			var woman_countries = [];
-
-			var m_marathon = [];
-			var w_marathon = [];
-			var xScale2;
-			var yScale2;
-
-			d3.csv("data2.csv", function(data)
-			{
-				for (var i=0; i<data.length; i++)
-				{
-					years.push(parseInt(data[i].year));
-					man_names.push(data[i].man_name);
-					man_times.push(parseInt(data[i].man_time));
-					man_countries.push(data[i].man_country);
-
-					if (i > 68)
-					{
-						woman_names.push(data[i].woman_name);
-						woman_times.push(parseInt(data[i].woman_time));
-						woman_countries.push(data[i].woman_country);
-					}
-				}
-				for (var i=0; i<data.length; i++)
-				{
-					m_marathon.push(
-					{
-						date: years[i],
-						m_names: man_names[i],
-						m_times: man_times[i],
-						m_countries: man_countries[i]
-					});
-
-					if (i>68)
-					{
-						w_marathon.push(
-						{
-							date: years[i],
-							w_names: woman_names[i-69],
-							w_times: woman_times[i-69],
-							w_countries: woman_countries[i-69]
-						});
-					}
-				}
-				var colors = {m: "rgb(23,70,138)",
-							  w: "rgb(228,75,3)"}
-				var margin = {top: 60, right: 20, bottom: 50, left: 50};
-				var w = 770 - margin.left - margin.right;
-				var h = 400 - margin.top - margin.bottom;
-
-				var svg2 = d3.selectAll("#figure2")
-							.append("svg")
-							.attr("width", w + margin.left + margin.right)
-							.attr("height", h + margin.top + margin.bottom)
-							.append("g")
-							.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-				svg2.append("rect")
-					.attr("x", 0)
-					.attr("y", 0)
-					.attr("width", w)
-					.attr("height", h)
-					.attr("class", "figure_bg");
-
-				var hline_layer = svg2.append("g");
-				var bar_layer = svg2.append("g");
-				xScale2 = d3.scaleLinear()
-							.domain([d3.min(years), d3.max(years)])
-							.rangeRound([0, w]);
-
-				yScale2 = d3.scaleLinear()
-								.domain([d3.min(man_times), d3.max(woman_times)])
-								.range([h, 0]);
-				var tickvalues2=10;
-
-				//Define X axis
-				var format_normal = d3.format("");
-				var xAxis2 = d3.axisBottom()
-								  .scale(xScale2)
-								  .tickFormat(format_normal);
-
-				//Define Y axis
-				var yAxis2 = d3.axisLeft()
-							  .scale(yScale2)
-							  .ticks(tickvalues2);
-			  	//Axis related code
-					svg2.append("g")
-						.attr("class", "xaxis2 axis")
-						.attr("transform", "translate(0," + h + ")")
-						.call(xAxis2);
-
-					//Label for x-axis
-					svg2.append("text")
-						.attr("class", "figtext figlabel")
-						.attr("transform", "translate("+ w/2 +","+(h+margin.bottom-5)+")")
-						.text("Year");
-
-					svg2.append("g")
-						.attr("class","yaxis2 axis")
-						.call(yAxis2);
-
-					//Label for y-axis
-					svg2.append("text")
-						.attr("class", "figtext figlabel")
-						.attr("transform", "rotate(-90)")
-						.attr("x", -h/2 )
-						.attr("y", -margin.left/1.5 )
-						.text("Winning time in minutes");
-				//Adding title
-				svg2.append("text")
-					.attr("class", "figtext figtitle")
-					.attr("x", w/2)
-					.attr("y", -margin.top/2)
-					.text("Winning times of the Boston Marathon (1897-2017)");
-
-				//Defining layers for later
-				var path_layer = svg2.append("g");
-				var point_layer = svg2.append("g");
-				//Generating points for data (men)
-
-				m_points = point_layer.selectAll(".m_points")
-							.data(m_marathon)
-							.enter()
-							.append("circle")
-							.attr("class", "data_points m_points")
-							.attr("cx", function(d) {return xScale2(d.date)})
-							.attr("cy", function(d) {return yScale2(d.m_times)})
-							.attr("r", 3);
-				var m_line = d3.line()
-							.x(function(d) {return xScale2(d.date)})
-							.y(function(d) {return yScale2(d.m_times)});
-				var mlines = path_layer.append("path")
-					.datum(m_marathon)
-					.attr("class", "m_line")
-					.attr("d", m_line);
-
-
-				//Generating points for data (women)
-				w_points = point_layer.selectAll(".w_points")
-							.data(w_marathon)
-							.enter()
-							.append("circle")
-							.attr("class", "data_points w_points")
-							.attr("cx", function(d) {return xScale2(d.date)})
-							.attr("cy", function(d) {return yScale2(d.w_times)})
-							.attr("r", 3);
-
-
-				//Creating path connecting data points. Defining the line generator
-
-				var w_line = d3.line()
-							.x(function(d) {return xScale2(d.date)})
-							.y(function(d) {return yScale2(d.w_times)});
-
-				var mlines = path_layer.append("path")
-					.datum(m_marathon)
-					.attr("class", "m_line")
-					.attr("d", m_line);
-
-				var wlines = path_layer.append("path")
-					.datum(w_marathon)
-					.attr("class", "w_line")
-					.attr("d", w_line);
-
-				//Adding legend
-				legend = svg2.append("g")
-							.attr("transform","translate(565,5)")
-				legend.append("rect")
-						.attr("class", "legend")
-						.attr("x",0)
-						.attr("y",0)
-						.attr("width",100)
-						.attr("height",70);
-				legend.append("line")
-						.attr("class","toggle legend_line m_legend")
-						.attr("x1",10)
-						.attr("x2",30)
-						.attr("y1",35)
-						.attr("y2",35)
-						.attr("stroke", colors.m);
-				legend.append("line")
-						.attr("class","toggle legend_line w_legend")
-						.attr("x1",10)
-						.attr("x2",30)
-						.attr("y1",55)
-						.attr("y2",55)
-						.attr("stroke", colors.w);
-				legend.append("text")
-						.attr("class", "toggle figlabel m_legend figtext")
-						.attr("x", 65)
-						.attr("y", 40)
-						.text("Men");
-				legend.append("text")
-						.attr("class", "toggle figlabel w_legend figtext")
-						.attr("x", 65)
-						.attr("y", 60)
-						.text("Women");
-				legend.append("text")
-						.attr("class", "toggle figlabel both figtext selected")
-						.attr("x", 50)
-						.attr("y", 20)
-						.text("Both");
-						//Default legend color
-						d3.selectAll(".w_legend")
-							.attr("fill-opacity", 0.2)
-							.attr("stroke-opacity", 0.2);
-						d3.selectAll(".m_legend")
-							.attr("fill-opacity", 0.2)
-							.attr("stroke-opacity", 0.2);
-				//Adding Transitions
-					//Hovering over data points
-					d3.selectAll(".data_points")
-						.on("mouseover", data_hover);
-					d3.selectAll(".data_points")
-						.on("mouseout", hover_over);
-
-					function data_hover()
-					{
-						d3.select(this)
-							.transition()
-							.attr("r",6);
-					}
-					function hover_over()
-					{
-						d3.select(this)
-							.transition()
-							.attr("r",3);
-					}
-				//Toggling data
-				d3.selectAll(".toggle")
-					.on("click", toggle);
-
-				function toggle()
-				{
-					var _this = d3.select(this);
-					if ((_this.classed("both")) && !(_this.classed("selected")))
-					{	console.log("both test")
-						//First remove men or women data and update legend_line
-						var remove_line = d3.line()
-											.y(h);
-						d3.selectAll(".m_line")
-							.datum(m_marathon)
-							.remove();
-						d3.selectAll(".w_line")
-							.datum(w_marathon)
-							.remove();
-
-						d3.selectAll(".m_legend")
-							.attr("fill-opacity", 0.2)
-							.attr("stroke-opacity", 0.2);
-						d3.selectAll(".w_legend")
-							.attr("fill-opacity", 0.2)
-							.attr("stroke-opacity", 0.2);
-						d3.selectAll(".both")
-							.attr("fill-opacity", 1)
-							.attr("stroke-opacity", 1);
-
-						// Here we remove the individual data and create Both
-						xScale2 = d3.scaleLinear()
-									.domain([1897,2017])
-									.rangeRound([0, w]);
-
-						yScale2 = d3.scaleLinear()
-										.domain([123, 210])
-										.range([h, 0]);
-
-						d3.select(".yaxis2")
-							.transition()
-							.duration(100)
-							.call(yAxis2);
-						d3.select(".xaxis2")
-							.transition()
-							.duration(100)
-							.call(xAxis2);
-						//M-points UPDATE
-						point_layer.selectAll(".m_points")
-									.data(m_marathon)
-									.attr("class", "data_points m_points")
-									.attr("cx", function(d) {return xScale2(d.date)})
-									.attr("cy", function(d) {return yScale2(d.m_times)});
-
-						m_points = point_layer.selectAll(".m_points")
-									.data(m_marathon)
-									.enter()
-									.append("circle")
-									.attr("class", "data_points m_points")
-									.attr("cx", function(d) {return xScale2(d.date)})
-									.attr("cy", function(d) {return yScale2(d.m_times)})
-									.attr("r", 3);
-						m_line = d3.line()
-									.x(function(d) {return xScale2(d.date)})
-									.y(function(d) {return yScale2(d.m_times)});
-						mlines = path_layer.append("path")
-							.datum(m_marathon)
-							.attr("class", "m_line")
-							.attr("d", m_line);
-						//W-points UPDATE
-						point_layer.selectAll(".w_points")
-									.data(w_marathon)
-									.attr("class", "data_points w_points")
-									.attr("cx", function(d) {return xScale2(d.date)})
-									.attr("cy", function(d) {return yScale2(d.w_times)});
-
-						w_points = point_layer.selectAll(".w_points")
-									.data(w_marathon)
-									.enter()
-									.append("circle")
-									.attr("class", "data_points w_points")
-									.attr("cx", function(d) {return xScale2(d.date)})
-									.attr("cy", function(d) {return yScale2(d.w_times)})
-									.attr("r", 3);
-						w_line = d3.line()
-									.x(function(d) {return xScale2(d.date)})
-									.y(function(d) {return yScale2(d.w_times)});
-
-						wlines = path_layer.append("path")
-							.datum(w_marathon)
-							.attr("class", "w_line")
-							.attr("d", w_line);
-
-						d3.select(".selected").classed("selected",false);
-						_this.classed("selected",true);
-					}
-					else if (_this.classed("m_legend") && !(_this.classed("selected")))
-					{
-						//Remove women data and create men data
-						var remove_line = d3.line()
-											.y(h);
-						d3.selectAll(".w_points")
-							.data(w_marathon)
-							.transition()
-							.attr("cy",h)
-							.remove();
-						d3.selectAll(".w_line")
-							.datum(w_marathon)
-							.remove();
-
-						d3.selectAll(".m_legend")
-							.attr("fill-opacity", 1)
-							.attr("stroke-opacity", 1);
-						d3.selectAll(".w_legend")
-							.attr("fill-opacity", 0.2)
-							.attr("stroke-opacity", 0.2);
-						d3.selectAll(".both")
-							.attr("fill-opacity", 0.2)
-							.attr("stroke-opacity", 0.2);
-
-						xScale2.domain([1897,2017]);
-						yScale2.domain([d3.min(man_times),d3.max(man_times)]);
-
-						//UPDATE OLD
-
-						d3.select(".yaxis2")
-							.transition()
-							.duration(100)
-							.call(yAxis2);
-						d3.select(".xaxis2")
-							.transition()
-							.duration(100)
-							.call(xAxis2);
-						path_layer.selectAll(".m_line")
-							.datum(m_marathon)
-							.transition()
-							.attr("d", m_line);
-						point_layer.selectAll(".m_points")
-									.data(m_marathon)
-									.transition()
-									.attr("class", "data_points m_points")
-									.attr("cx", function(d) {return xScale2(d.date)})
-									.attr("cy", function(d) {return yScale2(d.m_times)})
-									.attr("r", 3);
-						//CREATE NEW
-						path_layer.append("path")
-							.datum(m_marathon)
-							.attr("class", "m_line")
-							.attr("d", m_line);
-
-						point_layer.selectAll(".m_points")
-									.data(m_marathon)
-									.enter()
-									.append("circle")
-									.attr("class", "data_points m_points")
-									.attr("cx", function(d) {return xScale2(d.date)})
-									.attr("cy", function(d) {return yScale2(d.m_times)})
-									.attr("r", 3);
-						//Update selection classes
-						d3.select(".selected").classed("selected",false);
-						d3.select(".both").classed("selected",false);
-						_this.classed("selected",true);
-					}
-					else if (_this.classed("w_legend") && !(_this.classed("selected")))
-					{
-						//Remove women data and create men data
-						var remove_line = d3.line()
-											.y(h);
-						d3.selectAll(".m_points")
-							.data(m_marathon)
-							.transition()
-							.attr("cy",h)
-							.remove();
-						d3.selectAll(".m_line")
-							.datum(m_marathon)
-							.remove();
-
-						d3.selectAll(".w_legend")
-							.attr("fill-opacity", 1)
-							.attr("stroke-opacity", 1);
-						d3.selectAll(".m_legend")
-							.attr("fill-opacity", 0.2)
-							.attr("stroke-opacity", 0.2);
-						d3.selectAll(".both")
-							.attr("fill-opacity", 0.2)
-							.attr("stroke-opacity", 0.2);
-
-						xScale2.domain([1966,2017]);
-						yScale2.domain([d3.min(woman_times),d3.max(woman_times)]);
-
-						//UPDATE OLD
-
-						d3.select(".yaxis2")
-							.transition()
-							.duration(100)
-							.call(yAxis2);
-						d3.select(".xaxis2")
-							.transition()
-							.duration(100)
-							.call(xAxis2);
-						path_layer.selectAll(".w_line")
-							.datum(w_marathon)
-							.transition()
-							.attr("d", w_line);
-						point_layer.selectAll(".w_points")
-									.data(w_marathon)
-									.transition()
-									.attr("class", "data_points w_points")
-									.attr("cx", function(d) {return xScale2(d.date)})
-									.attr("cy", function(d) {return yScale2(d.w_times)})
-									.attr("r", 3);
-						//CREATE NEW
-						path_layer.append("path")
-							.datum(w_marathon)
-							.attr("class", "w_line")
-							.attr("d", w_line);
-						point_layer.selectAll(".w_points")
-									.data(w_marathon)
-									.enter()
-									.append("circle")
-									.attr("class", "data_points w_points")
-									.attr("cx", function(d) {return xScale2(d.date)})
-									.attr("cy", function(d) {return yScale2(d.w_times)})
-									.attr("r", 3);
-
-						//Update selection classes
-						d3.select(".selected").classed("selected",false);
-						d3.select(".both").classed("selected",false);
-						_this.classed("selected",true);
-
-					}
-				}
-
-
-			});
 		</script>
 		</div>
-</div>
-</div>
-</body>
+	</body>
 </html>
