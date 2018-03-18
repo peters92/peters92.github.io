@@ -30,105 +30,11 @@
 		</style>
 	</head>
 	<body>
-		<div id="crime_force_layout">
-		<script type="text/javascript">
-		var force_dataset = { nodes: [{ name: "The Bronx" },
-																	{ name: "Brooklyn" },
-																	{ name: "Manhattan" },
-																	{ name: "Queens" },
-																	{ name: "Staten Island" } ],
-													edges: [{ source: 0, target: 1 },
-																	{ source: 0, target: 2 },
-																	{ source: 0, target: 3 },
-																	{ source: 0, target: 4 },
-																	{ source: 1, target: 3 },
-																	{ source: 2, target: 3 },
-																	{ source: 2, target: 4 },
-																	{ source: 3, target: 4 }, ] };
-
-		//Margins and size for stacked area chart SVG
-		var margin_force = {top: 20, right: 20, bottom: 20, left: 20};
-		var w_force = 700 - margin_force.left - margin_force.right;
-		var h_force = 400 - margin_force.top - margin_force.bottom;
-		var svg_force = d3.select("body")
-					.append("svg")
-					.attr("width", w_force + margin_force.left + margin_force.right)
-					.attr("height", h_force + margin_force.top + margin_force.bottom)
-					.append("g")
-					.attr("transform", "translate("+margin_force.left+","+margin_force.top+")");
-
-		var node_radius = 30;
-		//Initialize a simple force layout, using the nodes and edges in dataset
-		var force = d3.forceSimulation(force_dataset.nodes)
-									.force("charge", d3.forceManyBody().strength(300))
-									.force("link", d3.forceLink(force_dataset.edges).distance(150))
-									.force("center", d3.forceCenter().x(w_force/2).y(h_force/2))
-									.force("collide",d3.forceCollide().radius(1.2*node_radius));
-
-		var color_force = d3.scaleOrdinal(d3.schemeCategory10);
-		//Create edges as lines
-		var edges = svg_force.selectAll("line")
-									.data(force_dataset.edges)
-									.enter()
-									.append("line")
-									.style("stroke", "#ccc")
-									.style("stroke-width", 1);
-		//Create nodes as circles
-		var nodes = svg_force.selectAll("circle")
-										.data(force_dataset.nodes)
-										.enter()
-										.append("circle")
-										.attr("r", node_radius)
-										.style("fill", function(d, i) {
-										return color_force(i);
-										})
-										.call(d3.drag() //Define what to do on drag events
-													.on("start", dragStarted)
-													.on("drag", dragging)
-													.on("end", dragEnded));
-		//Add a simple tooltip
-		nodes.append("title")
-					.text(function(d) {
-					return d.name;
-					});
-
-		//Every time the simulation "ticks", this will be called
-		force.on("tick", function()
-				{
-					edges.attr("x1", function(d) { return d.source.x; })
-					.attr("y1", function(d) { return d.source.y; })
-					.attr("x2", function(d) { return d.target.x; })
-					.attr("y2", function(d) { return d.target.y; });
-					nodes.attr("cx", function(d) { return d.x; })
-					.attr("cy", function(d) { return d.y; });
-				}	);
-
-
-		//Define drag event functions
-		function dragStarted(d)
-			{
-				if (!d3.event.active) force.alphaTarget(0.3).restart();
-				d.fx = d.x;
-				d.fy = d.y;
-			}
-		function dragging(d)
-			{
-				d.fx = d3.event.x;
-				d.fy = d3.event.y;
-			}
-		function dragEnded(d)
-			{
-				if (!d3.event.active) force.alphaTarget(0);
-				d.fx = null;
-				d.fy = null;
-			}
-		</script>
-		</div>
 		<div id="crime_stack_chart_div">
 		<script type="text/javascript">
 
 			//Margins and size for stacked area chart SVG
-			var margin_st = {top: 20, right: 50, bottom: 20, left: 50};
+			var margin_st = {top: 50, right: 20, bottom: 20, left: 20};
 			var w_st = 700 - margin_st.left - margin_st.right;
 			var h_st = 400 - margin_st.top - margin_st.bottom;
 
@@ -140,7 +46,6 @@
 						.append("svg")
 						.attr("width", w_st + margin_st.left + margin_st.right)
 						.attr("height", h_st + margin_st.top + margin_st.bottom)
-						.append("g")
 						.attr("transform", "translate("+margin_st.left+","+margin_st.top+")");
 
 			//Loading data from csv
@@ -159,15 +64,14 @@
 
 				for (var i=0; i<12; i++)
 				{
-					months.push(dataset[i].months);
-					//months.push(i+1);
+					//months.push(dataset_stack[i].months);
+					months.push(i+1);
 					max_vals.push(dataset_stack[0][i][1]);
 				}
 				var max_val = d3.max(max_vals);
 				xScale_stack = d3.scaleBand()
 													.domain(months)
-													.range([0, w_st])
-													.round(true);
+													.rangeRound([0, w_st]);
 				yScale_stack = d3.scaleLinear()
 													.domain([0, max_val])
 													.range([h_st,0])
@@ -184,7 +88,7 @@
 
 				 //Define area generator
  				area = d3.area()
- 							.x(function(d,i) { return xScale_stack(months[i])+margin_st.left/2; })
+ 							.x(function(d,i) { return xScale_stack(months[i]); })
  							.y0(function(d) { return yScale_stack(d[0]); })
  							.y1(function(d) { return yScale_stack(d[1]); });
 
@@ -194,7 +98,9 @@
 												.append("path")
 												.attr("class", "area")
 												.attr("d", area)
-												.attr("fill", function(d,i){return color_stack(i)})
+												.attr("fill", function(d, i) {
+													return d3.schemeCategory20[i];
+												})
 												.append("title")  //Make tooltip
 												.text(function(d) {
 													return d.key;
@@ -334,7 +240,7 @@
 						.duration(dur)
 						.attr("transform","translate(0,-20)");
 					//Create new text element with borough name
-					tmp_format=d3.format(",");
+					tmp_format=d3.format(",r");
 					boro_name.transition()
 									.duration(dur)
 									.delay(75)
