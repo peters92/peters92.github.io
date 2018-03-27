@@ -1,389 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>NYC Crimes by Borough</title>
-		<script type="text/javascript" src="/d3/d3.js"></script>
-		<script src="/d3/d3-scale-chromatic.v1.min.js"></script>
-		<style type="text/css">
+    <head>
+        <meta charset="utf-8">
+        <title>Assignment 2</title>
+        <link rel="shortcut icon" type="image/png" href="/data/favicon.png"/>
+        <!--<link rel="shortcut icon" type="image/png" href="http://example.com/favicon.png"/> -->
+        <script type="text/javascript" src="/d3/d3.js"></script>
+        <script type="text/javascript" src="/d3/d3-scale-chromatic.v1.min.js"></script>
+        <style type=text/css>
+          .boro_label{
+            text-anchor: middle;
+            font-size: 16pt;
+            font-weight: bold;
+            fill: black;
+            /*text-shadow:
+              -1px -1px 0 #fff,
+              1px -1px 0 #fff,
+              -1px 1px 0 #fff,
+              1px 1px 0 #fff;*/
+            pointer-events: none;
+          }
+        </style>
+    </head>
+<body>
+<div class="nyc_viz">
+<script type="text/javascript">
+            ///////////////////
+            /// MAP OF NYC ///
+            //////////////////
 
-			.doughnut_title {
-				text-anchor: middle;
-				font-family: Helvetica, sans-serif;
-				font-size: 18px;
-				fill: black;
-			}
-			[class^="label"]{
-				pointer-events: none;
-				font-family: Helvetica, sans-serif;
-				font-size: 14px;
-				fill: white;
-			}
-			.boro_name{
-				text-anchor: middle;
-				font-family: Helvetica, sans-serif;
-				font-size: 22px;
-				font-weight: bold;
-				fill: black;
-			}
+//Defining margins and svg element
+var margin = {top: 100, right: 20, bottom: 200, left: 20};
+var w = 750 - margin.left - margin.right;
+var h = 600 - margin.top - margin.bottom;
+var svg = d3.select("body")
+      .append("svg")
+      .attr("width", (w + margin.left + margin.right))
+      .attr("height", (h + margin.top + margin.bottom))
+      .append("g")
+      .attr("transform", "translate("+margin.left+","+margin.top+")");
 
-		</style>
-	</head>
-	<body>
-		<div id="crime_force_layout">
-		<script type="text/javascript">
-		var force_dataset = { nodes: [{ name: "The Bronx" },
-																	{ name: "Brooklyn" },
-																	{ name: "Manhattan" },
-																	{ name: "Queens" },
-																	{ name: "Staten Island" } ],
-													edges: [{ source: 0, target: 1 },
-																	{ source: 0, target: 2 },
-																	{ source: 0, target: 3 },
-																	{ source: 0, target: 4 },
-																	{ source: 1, target: 3 },
-																	{ source: 2, target: 3 },
-																	{ source: 2, target: 4 },
-																	{ source: 3, target: 4 }, ] };
+//Defining path generator
 
-		//Margins and size for stacked area chart SVG
-		var margin_force = {top: 20, right: 20, bottom: 20, left: 20};
-		var w_force = 700 - margin_force.left - margin_force.right;
-		var h_force = 400 - margin_force.top - margin_force.bottom;
-		var svg_force = d3.select("body")
-					.append("svg")
-					.attr("width", w_force + margin_force.left + margin_force.right)
-					.attr("height", h_force + margin_force.top + margin_force.bottom)
-					.append("g")
-					.attr("transform", "translate("+margin_force.left+","+margin_force.top+")");
+var projection = d3.geoMercator()
+                   .center([-73.93,40.74])
+                   .scale(60000)
+                   .translate([w/2,h/2]);
 
-		var node_radius = 30;
-		//Initialize a simple force layout, using the nodes and edges in dataset
-		var force = d3.forceSimulation(force_dataset.nodes)
-									.force("charge", d3.forceManyBody().strength(300))
-									.force("link", d3.forceLink(force_dataset.edges).distance(150))
-									.force("center", d3.forceCenter().x(w_force/2).y(h_force/2))
-									.force("collide",d3.forceCollide().radius(1.2*node_radius));
+var path = d3.geoPath()
+             .projection(projection);
 
-		var color_force = d3.scaleOrdinal(d3.schemeCategory10);
-		//Create edges as lines
-		var edges = svg_force.selectAll("line")
-									.data(force_dataset.edges)
-									.enter()
-									.append("line")
-									.style("stroke", "#ccc")
-									.style("stroke-width", 1);
-		//Create nodes as circles
-		var nodes = svg_force.selectAll("circle")
-										.data(force_dataset.nodes)
-										.enter()
-										.append("circle")
-										.attr("r", node_radius)
-										.style("fill", function(d, i) {
-										return color_force(i);
-										})
-										.call(d3.drag() //Define what to do on drag events
-													.on("start", dragStarted)
-													.on("drag", dragging)
-													.on("end", dragEnded));
-		//Add a simple tooltip
-		nodes.append("title")
-					.text(function(d) {
-					return d.name;
-					});
+//Loading GeoJSON file of boroughs
+var geo = [];
+d3.json("/data/boroughs.json", function(data)
+{
+  geo = data; //debugging
 
-		//Every time the simulation "ticks", this will be called
-		force.on("tick", function()
-				{
-					edges.attr("x1", function(d) { return d.source.x; })
-					.attr("y1", function(d) { return d.source.y; })
-					.attr("x2", function(d) { return d.target.x; })
-					.attr("y2", function(d) { return d.target.y; });
-					nodes.attr("cx", function(d) { return d.x; })
-					.attr("cy", function(d) { return d.y; });
-				}	);
+  var map = svg.selectAll("path")
+               .data(data.features)
+               .enter()
+               .append("path")
+               .attr("class",function(d,i)
+                {
+                  return "boro_path "+ data.features[i].properties.BoroName;
+                })
+               .attr("d",path)
+               .style("fill","rgb(85,143,110)")
+               .style("stroke","rgb(66,66,66)")
+               .style("stroke-width","1.5px");
+  //Text label for boroughs
+  svg.selectAll("text")
+     .data(data.features)
+     .enter()
+     .append("text")
+     .attr("class","boro_label")
+     .attr("x", function(d)
+      {
+        return path.centroid(d)[0];
+      })
+      .attr("y", function(d)
+      {
+        return path.centroid(d)[1];
+      })
+      .text(function(d)
+      {
+        return d.properties.BoroName;
+      })
 
+  // Mouse over and out functions
+  d3.selectAll('.boro_path')
+    .on('mouseover', boro_hover);
+  d3.selectAll('.boro_path')
+    .on('mouseout', boro_hover_over);
 
-		//Define drag event functions
-		function dragStarted(d)
-			{
-				if (!d3.event.active) force.alphaTarget(0.3).restart();
-				d.fx = d.x;
-				d.fy = d.y;
-			}
-		function dragging(d)
-			{
-				d.fx = d3.event.x;
-				d.fy = d3.event.y;
-			}
-		function dragEnded(d)
-			{
-				if (!d3.event.active) force.alphaTarget(0);
-				d.fx = null;
-				d.fy = null;
-			}
-		</script>
-		</div>
-		<div id="crime_stack_chart_div">
-		<script type="text/javascript">
+  function boro_hover()
+  {
+    var hover_object = d3.select(this);
 
-			//Margins and size for stacked area chart SVG
-			var margin_st = {top: 20, right: 50, bottom: 20, left: 50};
-			var w_st = 700 - margin_st.left - margin_st.right;
-			var h_st = 400 - margin_st.top - margin_st.bottom;
+    hover_object.style("stroke", "rgb(50,50,50)")
+                .style("stroke-width", "3px");
+  }
+  function boro_hover_over()
+  {
+    var hover_object = d3.select(this);
 
-			//Doughnut chart colors, needs d3-scale-chromatic library
-			var color_stack = d3.scaleOrdinal(d3.schemeCategory10);
-
-			//Create SVG element
-			var svg_stack_chart = d3.select("body")
-						.append("svg")
-						.attr("width", w_st + margin_st.left + margin_st.right)
-						.attr("height", h_st + margin_st.top + margin_st.bottom)
-						.append("g")
-						.attr("transform", "translate("+margin_st.left+","+margin_st.top+")");
-
-			//Loading data from csv
-			var dataset_stack, dataset, xScale_stack, yScale_stack, xAxis_stack, yAxis_stack;
-			var months = [];
-			var max_vals = [];
-
-
-			d3.csv('/data/top5_crimes_manhattan_2016.csv', function(data)
-			{
-				dataset = data;
-				var stack = d3.stack()
-											.keys(dataset.columns.slice(1))
-											.order(d3.stackOrderDescending);
-				dataset_stack = stack(dataset);
-
-				for (var i=0; i<12; i++)
-				{
-					months.push(dataset[i].months);
-					//months.push(i+1);
-					max_vals.push(dataset_stack[0][i][1]);
-				}
-				var max_val = d3.max(max_vals);
-				xScale_stack = d3.scaleBand()
-													.domain(months)
-													.range([0, w_st])
-													.round(true);
-				yScale_stack = d3.scaleLinear()
-													.domain([0, max_val])
-													.range([h_st,0])
-													.nice();
-
-				xAxis_stack = d3.axisBottom()
-						   .scale(xScale_stack)
-						   .ticks(12);
-
-				//Define Y axis
-				yAxis_stack = d3.axisRight()
-						   .scale(yScale_stack)
-						   .ticks(5);
-
-				 //Define area generator
- 				area = d3.area()
- 							.x(function(d,i) { return xScale_stack(months[i])+margin_st.left/2; })
- 							.y0(function(d) { return yScale_stack(d[0]); })
- 							.y1(function(d) { return yScale_stack(d[1]); });
-
-				svg_stack_chart.selectAll("path")
-												.data(dataset_stack)
-												.enter()
-												.append("path")
-												.attr("class", "area")
-												.attr("d", area)
-												.attr("fill", function(d,i){return color_stack(i)})
-												.append("title")  //Make tooltip
-												.text(function(d) {
-													return d.key;
-												});
-				//Create axes
-				svg_stack_chart.append("g")
-					.attr("class", "axis")
-					.attr("transform", "translate(0," + (h_st) + ")")
-					.call(xAxis_stack);
-
-				svg_stack_chart.append("g")
-					.attr("class", "axis")
-					.attr("transform", "translate(" + (w_st) + ",0)")
-					.call(yAxis_stack);
-			})
-
-
-		</script>
-		</div>
-		<div id="doughnut_div">
-		<script type="text/javascript">
-
-			//Margins and size for doughnut chart SVG
-			var margin_dn = {top: 50, right: 100, bottom: 100, left: 50};
-			var w = 500 - margin_dn.left - margin_dn.right;
-			var h = 500 - margin_dn.top - margin_dn.bottom;
-
-			//Number of crime complaints per borough (calculated previously in Matlab)
-			var crime_per_boro = [103750, 137851, 112919, 92392, 21378];
-			var boros = [ 'Bronx',
-								    'Brooklyn',
-								    'Manhattan',
-										'Queens',
-										'Staten Island'];
-			//Calculating fraction compared to total number of crime complaints
-			var crime_sum = d3.sum(crime_per_boro);
-			var fractions = [];
-			for (var i=0; i<crime_per_boro.length; i++)
-				{
-					fractions.push(crime_per_boro[i]/crime_sum);
-				}
-
-			//Doughnut sizes and arc
-			var outerRadius = w * 0.55;
-			var innerRadius = w * 0.4;
-			var arc = d3.arc()
-						.innerRadius(innerRadius)
-						.outerRadius(outerRadius);
-
-			var pie = d3.pie();
-
-			//Doughnut chart colors, needs d3-scale-chromatic library
-			var color_doughnut = d3.scaleOrdinal(d3.schemeCategory10);
-
-			//Create SVG element
-			var svg_doughnut = d3.select("body")
-						.append("svg")
-						.attr("width", w + margin_dn.left + margin_dn.right)
-						.attr("height", h + margin_dn.top + margin_dn.bottom)
-						.attr("transform","translate("+margin_dn.left+","+margin_dn.top+")");
-
-			//Set up groups
-			var arcs = svg_doughnut.selectAll("g.arc")
-						  .data(pie(crime_per_boro))
-						  .enter()
-						  .append("g")
-						  .attr("class", "arc")
-							.attr('id', function(d,i){
-								return i;
-							})
-						  .attr("transform", "translate(" + (1.5*outerRadius) + "," + (1.5*outerRadius) + ")");
-
-			//Draw arc paths
-			var arc_paths = arcs.append("path")
-													.attr('class','arcpath')
-													.attr('id', function(d,i){
-														return i;
-													})
-											    .attr("fill", function(d, i) {
-											    	return color_doughnut(i);
-											    })
-											    .attr("d", arc);
-
-			//Labels
-			format = d3.format("0.1%");
-
-			arcs.append("text")
-					.attr("class",function(d,i){
-						return "label"+i;
-					})
-			    .attr("transform", function(d) {
-			    	return "translate(" + arc.centroid(d) + ")";
-			    })
-			    .attr("text-anchor", "middle")
-			    .text(function(d,i) {
-			    	return format(fractions[i]);
-			    });
-
-			//Adding Text to the middle of the chart
-			doughnut_title = arcs.append("g")
-														.attr("class","doughnut_title_box");
-			doughnut_title.append("text")
-					.attr('class', 'doughnut_title')
-					.text("Crimes reported in NYC (2016)");
-
-			boro_name = arcs.append("text")
-					.attr("class","boro_name")
-					.attr("opacity", 0);
-
-			//Mouseover events
-			d3.selectAll('.arcpath')
-				.on('mouseover', doughnut_hover);
-			d3.selectAll('.arcpath')
-				.on('mouseout', doughnut_hover_over);
-
-			function doughnut_hover()
-				{
-					var dur=500;
-					var id = this.id;
-					arc.innerRadius(innerRadius*1.1)
-							.outerRadius(outerRadius*1.07);
-					d3.select(this)
-						.transition()
-						.duration(dur)
-						.attr('d', arc)
-					arcs.select(".label"+this.id)
-						.transition()
-						.duration(dur)
-						.attr("transform", function(d) {
-				    	return "translate(" + arc.centroid(d) + ")";
-				    })
-						.style('font-size', '16px')
-						.attr('font-weight', 'bold');
-					//Move default title up a bit
-					d3.selectAll(".doughnut_title_box")
-						.transition()
-						.duration(dur)
-						.attr("transform","translate(0,-20)");
-					//Create new text element with borough name
-					tmp_format=d3.format(",");
-					boro_name.transition()
-									.duration(dur)
-									.delay(75)
-									.attr("opacity", 1)
-									.attr("transform","translate(0,30)")
-									.text(function(){return boros[id] + ": " + tmp_format(crime_per_boro[id])});
-					d3.selectAll(".doughnut_title")
-						.text( "Number of NYPD Complaints")
-
-				}
-			function doughnut_hover_over()
-				{
-					arc.innerRadius(innerRadius)
-							.outerRadius(outerRadius);
-
-					var dur=500;
-					d3.select(this)
-						.transition()
-						.duration(dur)
-						.attr('d', arc)
-					arcs.select(".label"+this.id)
-						.transition()
-						.duration(dur)
-						.attr("transform", function(d) {
-				    	return "translate(" + arc.centroid(d) + ")";
-				    })
-						.style('font-size', '14px')
-						.attr('font-weight', 'normal')
-
-					//Move default title back
-					d3.selectAll(".doughnut_title_box")
-						.transition()
-						.delay(100)
-						.duration(dur)
-						.attr("transform","translate(0,0)");
-
-					//Remove boro
-					arcs.selectAll(".boro_name")
-						.transition()
-						.delay(50)
-						.duration(dur)
-						.attr("opacity", 0)
-						.attr("transform","translate(0,0)");
-					d3.selectAll(".doughnut_title")
-						.text("Crimes reported in NYC (2016)");
-
-				}
-
-		</script>
-		</div>
-	</body>
+    hover_object.style("stroke", "rgb(66,66,66)")
+                .style("stroke-width", "1.5px");
+  }
+})
+</script>
+</div>
+</body>
 </html>
