@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <title>Assignment 2</title>
         <link rel="shortcut icon" type="image/png" href="/data/favicon.png"/>
-        <link rel="stylesheet" type="text/css" href="/css/styles.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
         <script type="text/javascript" src="/d3/d3.js"></script>
         <script type="text/javascript" src="/d3/d3-scale-chromatic.v1.min.js"></script>
     </head>
@@ -95,6 +95,9 @@
 <h3>
   Murders in New York City from 2006 to 2016
 </h3>
+<h4>
+Hint: Hover over the boroughs for more information.
+</h4>
 
 <div class="timeline">
 </div><div class="map">
@@ -272,7 +275,7 @@
   ////////////////////////////////////////////////////////////////////////////////
 
   //Defining margins and svg element for TIMELINE
-  var margin_2 = {top: 20, right: 20, bottom: 20, left: 40};
+  var margin_2 = {top: 40, right: 20, bottom: 20, left: 40};
   var w_2 = 800 - margin_2.left - margin_2.right;
   var h_2 = 200 - margin_2.top - margin_2.bottom;
   var svg_2 = d3.select(".timeline")
@@ -434,7 +437,21 @@
                 return tmp[1];
               })
              .attr("r", 3);
+  //Adding date text over brush to make selections easier.
+  var format_time2 = d3.timeFormat("%Y-%m-%d");
+  var brush_text1 = svg_2.append("text")
+                         .attr("class", "brush_text brush_text1")
+                         .attr("x", init_range[0])
+                         .attr("y", -10)
+                         .attr("text-anchor","end")
+                         .text(format_time2(domain_val[0]));
 
+  var brush_text1 = svg_2.append("text")
+                         .attr("class", "brush_text brush_text2")
+                         .attr("x", init_range[1])
+                         .attr("y", -10)
+                         .attr("text-anchor", "start")
+                         .text(format_time2(domain_val[1]));
 
   function brushed() {
     //console.log(d3.event.selection)
@@ -490,6 +507,55 @@
                .exit()
                .attr("opacity",0)
                .remove();
+
+    //Updating brush selection date text
+    var format_time2 = d3.timeFormat("%Y-%m-%d");
+    d3.select(".brush_text1")
+      .attr("x", s[0])
+      .text(format_time2(domain_val[0]));
+    if (s[0]<40)
+    {
+      d3.select(".brush_text1")
+        .attr("text-anchor", "middle");
+    }
+    else {
+      d3.select(".brush_text1")
+        .attr("text-anchor", "end");
+    }
+
+    d3.select(".brush_text2")
+      .attr("x", s[1])
+      .text(format_time2(domain_val[1]));
+
+    if (s[1]>680)
+    {
+      d3.select(".brush_text2")
+        .attr("text-anchor", "end");
+    }
+    else {
+      d3.select(".brush_text2")
+        .attr("text-anchor", "start");
+    }
+    if (s[0]>580 && s[1]-s[0]<100)
+    {
+      d3.select(".brush_text1")
+        .attr("y", -25 )
+    }
+    if (s[0]<575)
+    {
+      d3.select(".brush_text1")
+        .attr("y", -10 )
+    }
+    if (s[0]<40 && s[1]<90)
+    {
+      d3.select(".brush_text2")
+        .attr("y", -25 );
+    }
+    if (s[1]>90)
+    {
+      d3.select(".brush_text2")
+        .attr("y", -10 );
+    }
 
   }
 

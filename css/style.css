@@ -1,0 +1,154 @@
+body{
+	background-color: rgb(240,244,241);
+}
+
+div{
+	width: 800px;
+}
+h1{
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 50px;
+	font-family: Arial;
+	font-size: 5em;
+	text-align: center;
+	text-decoration: underline;
+}
+h2{
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 50px;
+	font-family: Arial;
+	font-size: 3.5em;
+}
+
+h3{
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 5px;
+	font-family: sans-serif;
+	font-size: 2em;
+	text-align: center;
+}
+h4{
+	width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 15px;
+	font-family: sans-serif;
+	font-size: 1em;
+	font-weight: normal;
+	text-align: center;
+}
+.part1{
+	margin-left: auto;
+	margin-right: auto;
+	font-family: sans-serif;
+	font-size: 9pt;
+	font-weight: normal;
+}
+
+dl {
+	margin: 20px;
+	margin-bottom: 50px;
+	border-left: 1px solid #999;
+	padding-left: 10px;
+	text-align: justify;
+	}
+	dt {
+		font-size: 2.0em;
+		margin-bottom: 15px;
+		font-weight: bold;
+		}
+		dt span {
+			padding-left: 20px;
+		}
+	dd {
+		font-size: 1.4em;
+		margin-left: 20px;
+		margin-bottom: 10px;
+	}
+.subitem{
+	text-decoration: underline;
+}
+
+
+.timeline{
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 50px;
+}
+
+.axis {
+	font-family: sans-serif;
+	font-size: 0.8em;
+}
+
+.map{
+		margin-left: auto;
+		margin-right: auto;
+}
+
+.info_box{
+	stroke: black;
+	stroke-width: 0.1em;
+	fill: none;
+	rx: 20px;
+	ry: 20px;
+}
+.info_text{
+	font-family: sans-serif;
+	font-size: 0.9em;
+	font-weight: bold;
+	text-anchor: middle;
+	text-align: justify;
+	word-wrap: break-word;
+}
+.info_text3{
+	font-family: sans-serif;
+	font-size: 1.5em;
+	font-weight: bold;
+	text-anchor: middle;
+	text-align: justify;
+	word-wrap: break-word;
+}
+
+.boro_bg{
+	fill: none;
+}
+.boro_path{
+	fill: rgb(147,198,143);
+	stroke: black;
+}
+.boro_label{
+	text-anchor: middle;
+	font-size: 16pt;
+	font-weight: bold;
+	fill: black;
+	text-shadow:
+	 -1px -1px 0 #fff,
+		1px -1px 0 #fff,
+		-1px 1px 0 #fff,
+		 1px 1px 0 #fff;
+	pointer-events: none;
+}
+:root{
+	--murder_color: rgb(217,51,51);
+}
+.line_graph{
+	stroke: var(--murder_color);
+	fill: none;
+}
+.brush_text{
+	font-family: sans-serif;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+.murder_dot{
+	fill: var(--murder_color);
+	pointer-events: none;
+}
