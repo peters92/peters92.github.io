@@ -9,13 +9,18 @@
         <script type="text/javascript" src="/d3/d3-scale-chromatic.v1.min.js"></script>
     </head>
 <body>
+
+  <div class="timeline">
+  </div><div class="map">
+  </div><div class="nyc_viz">
+
 <h1>
   Assignment 2
 </h1>
 <h2>
   Part 1
 </h2>
-  <div class="part1">
+<div class="part1">
   <dl>
       <dt>Question 1: What is the Oxford English Dictionary's definition of a narrative?</dt>
       <dd>The Oxford English Dictionary defines narrative as “an account of a
@@ -89,9 +94,10 @@
 <h2>
   Part 2
 </h2>
-<div class="timeline">
-</div><div class="map">
-</div><div class="nyc_viz">
+
+<h3>
+  Murders in New York City from 2006 to 2016
+</h3>
 <script type="text/javascript">
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////// NYC MAP //////////////////////////////////
@@ -118,7 +124,7 @@
   //Defining path generator
 
   var projection = d3.geoMercator()
-                     .center([-73.93,40.74])
+                     .center([-74,40.74])
                      .scale(60000)
                      .translate([w/2,h/2]);
 
@@ -126,6 +132,9 @@
                .projection(projection);
   var map = svg.append("g");
 
+  var debug;
+  var murder_nested_by_boro=[];
+  var murder_nested_by_boro2=[];
   //Loading GeoJSON file of boroughs
   d3.json("/data/boroughs.json", function(data)
   {
@@ -135,7 +144,7 @@
      .append("path")
      .attr("class",function(d,i)
       {
-        return "boro_path "+ data.features[i].properties.BoroName;
+        return data.features[i].properties.BoroName + " boro_path";
       })
      .attr("d",path);
     //Text label for boroughs
@@ -163,19 +172,95 @@
     d3.selectAll('.boro_path')
       .on('mouseout', boro_hover_over);
 
+    //Textbox showing selected boro's information for current brush selection
+    var box_w = 300;
+    var box_h = 120;
+    var info_box = svg.append("g")
+                      .attr("transform", "translate(0,-50)");
+
+    info_box.append("rect")
+            .attr("class", "info_box")
+            .attr("x",-30-box_w)
+            .attr("y",0)
+            .attr("width", box_w)
+            .attr("height", box_h);
+
+    var info_text = info_box.append("text")
+                            .attr("class","info_text")
+                            .attr("x", -30-box_w/2)
+                            .attr("y", box_h*0.2)
+                            .text("");
+
+    var info_text2 = info_box.append("text")
+                            .attr("class","info_text")
+                            .attr("x", -30-box_w/2)
+                            .attr("y", box_h*0.4)
+                            .text("");
+
+    var info_text3 = info_box.append("text")
+                            .attr("class","info_text info_text3")
+                            .attr("x", -30-box_w/2)
+                            .attr("y", box_h*0.8)
+                            .text("");
+
+
     function boro_hover()
     {
       var hover_object = d3.select(this);
+      debug = hover_object;
 
       hover_object.style("stroke", "rgb(50,50,50)")
                   .style("stroke-width", "2px");
+
+      //updating first line of text
+      var tmp_boro = hover_object._groups[0][0].classList[0];
+      if (tmp_boro=="Staten")
+      {
+        tmp_boro = hover_object._groups[0][0].classList[0]+ " " +
+                  hover_object._groups[0][0].classList[1];
+      }
+      info_text.text("The number of murders in " + tmp_boro);
+
+      //updating second line
+      var format_time = d3.timeFormat("%Y-%m-%d")
+      tmp_time1 = format_time(domain_val[0]);
+      tmp_time2 = format_time(domain_val[1]);
+      info_text2.text("between "+tmp_time1+" and "+tmp_time2+" was:");
+
+      //Updating third line
+      var tmp_data = murder_nested_by_boro2[tmp_boro].values;
+
+      var tmp_subset = tmp_data.filter(function(d)
+        {
+          //var tmp = init_range.map(xScale.invert, xScale)
+          return d.date > domain_val[0] && d.date < domain_val[1];
+        })
+      info_text3.text(tmp_subset.length);
+
+      info_box.select("rect")
+              .transition()
+              .duration(1000)
+              .attr("x", 0);
+      info_box.selectAll(".info_text")
+              .transition()
+              .duration(1000)
+              .attr("x", box_w/2);
     }
     function boro_hover_over()
     {
       var hover_object = d3.select(this);
 
-      hover_object.style("stroke", "none")
-                  .style("stroke-width", "1.5px");
+      hover_object.style("stroke", "black")
+                  .style("stroke-width", "0.5px");
+
+      info_box.select("rect")
+              .transition()
+              .duration(1000)
+              .attr("x", -30-box_w);
+      info_box.selectAll(".info_text")
+              .transition()
+              .duration(1000)
+              .attr("x", -30-box_w/2);
     }
   })
 
@@ -201,13 +286,6 @@
      .attr("x", 0-margin_2.left)
      .attr("y", 0-margin_2.top)
 
-  svg_2.append("text")
-     .attr("class", "temp_title")
-     .text("Murders in New York City from 2006 to 2016")
-     .attr("x", w/2)
-     .attr("y", -5)
-     .attr("font-size", "20");
-
   var murder_dots = svg.append("g")
              //.selectAll("circles")
 
@@ -226,7 +304,7 @@
   //Loading murder data from csv
 
   //lots of vars for debugging stuff
-  var muder_by_day=[];
+  var murder_by_day=[];
   var murder_data=[];
   //var xScale = [];
   //var yScale = [];
@@ -242,6 +320,14 @@
   murder_nested_by_day = d3.nest()
                     .key(function(d){ return formatTime(d.date) })
                     .entries(murder_data);
+  murder_nested_by_boro = d3.nest()
+                    .key(function(d){ return d.boro; })
+                    .entries(murder_data);
+  murder_nested_by_boro2 = {"Queens": murder_nested_by_boro[0],
+                            "Brooklyn": murder_nested_by_boro[1],
+                            "Bronx": murder_nested_by_boro[2],
+                            "Manhattan": murder_nested_by_boro[3],
+                            "Staten Island": murder_nested_by_boro[4]};
   //Creating object for line graph
   murder_per_day = [];
   parseTime = d3.timeParse("%m/%d/%Y")
@@ -357,7 +443,7 @@
         return d.date > domain_val[0] && d.date < domain_val[1];
       })
     //console.log(murder_dots.selectAll("circle")._groups)
-    console.log(subset.length)
+    //console.log(subset.length)
     //Adding new circles and updating old+new ones
     murder_dots.selectAll("circle")
                .data(subset)
