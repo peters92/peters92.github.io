@@ -4,319 +4,329 @@
         <meta charset="utf-8">
         <title>Assignment 2</title>
         <link rel="shortcut icon" type="image/png" href="/data/favicon.png"/>
-        <!--<link rel="shortcut icon" type="image/png" href="http://example.com/favicon.png"/> -->
+        <link rel="stylesheet" type="text/css" href="/css/style.css" media="screen" />
         <script type="text/javascript" src="/d3/d3.js"></script>
         <script type="text/javascript" src="/d3/d3-scale-chromatic.v1.min.js"></script>
-        <style type=text/css>
-          .timeline{
-            margin-bottom: -4.5px;
-          }
-          .boro_bg{
-            fill: rgb(153,179,204);
-          }
-          .boro_path{
-            fill: rgb(182,203,150);
-            stroke: none;
-            stroke-width: 1.5px;
-          }
-          .boro_label{
-            text-anchor: middle;
-            font-size: 16pt;
-            font-weight: bold;
-            fill: black;
-            text-shadow:
-             -1px -1px 0 #fff,
-              1px -1px 0 #fff,
-              -1px 1px 0 #fff,
-               1px 1px 0 #fff;
-            pointer-events: none;
-          }
-          .line_graph{
-            stroke: rgb(200,38,74);
-            fill: none;
-          }
-          .temp_title{
-            text-anchor: middle;
-            font: sans-serif;
-            font-size: 20;
-            font-weight: bold;
-          }
-          .murder_dot{
-            fill: rgb(200,38,74);
-          }
-        </style>
     </head>
 <body>
+<h1>
+  Assignment 2
+</h1>
+<h2>
+  Part 1
+</h2>
+  <div class="part1">
+  <dl>
+      <dt>Question 1: What is the Oxford English Dictionary's definition of a narrative?</dt>
+      <dd>The Oxford English Dictionary defines narrative as “an account of a
+      series of events, facts, etc., given in order and with the establishing of
+      connections between them.”</dd>
+  </dl>
+  <dl>
+      <dt>
+        Question 2: What is your favorite visualization among the examples in section 3? Explain why in a few words.
+      </dt>
+      <dd>
+        My favorite visualization was "Afghanistan: Behind the Front Line.".
+        I prefer it over the others because it manages to collect and exhibit a huge amount of information without overloading the viewer.
+        This is both because it has tabs, to select the kind of data the viewer might be interested in, but also because it converts lots of numbers into easy to grasp visuals with the color-coded map.
+        I think this allows me to discover the data more "gently" as opposed to being showered with every bit of detail at the first look (as in the baseball example from the NY Times on fig. 1).
+
+      </dd>
+  </dl>
+  <dl>
+      <dt>
+        Question 3: What's the point of Figure 7?
+      </dt>
+      <dd>
+        Figure 7 displays the different narrative visualization examples in a table format sorted by genres.
+        Each subsequent column has a color-code showing the presence or absence of a certain design feature or strategy.
+        Since it is color coded, it enables our eyes to quickly recognize patterns, such as the clear correlation between genres and ordering techniques (highlighted by red box nr. 1) among others.
+      </dd>
+  </dl>
+  <dl>
+      <dt>
+        Question 4: Use Figure 7 to find the most common design choice within each category for the Visual narrative and Narrative structured
+        (the categories within visual narrative are 'visual structuring', 'highlighting', etc).
+      </dt>
+      <dd>
+        The most common design choices in Visual Narrative and Narrative Structure are the following:
+      	<p class="subitem">Visual Narrative</p>
+      		<ul>Visual Structuring: Consistent Visual Platform</ul>
+      		<ul>Highlighting: Feature Distinction</ul>
+      		<ul>Transition Guidance: Almost tied between Object Continuity and Animated Transitions.</ul>
+      	<p class="subitem">Narrative Structure</p>
+      		<ul>Ordering: User Directed Path</ul>
+      		<ul>Interactivity: Filtering/Selection/Search</ul>
+      		<ul>Messaging: Captions/Headlines</ul>
+      </dd>
+  </dl>
+  <dl>
+      <dt>
+        Question 5: Check out Figure 8 and section 4.3.
+  	    </dt>
+      <dd>
+        <dt>
+        <span>5a: What is your favorite genre of narrative visualization?Why?</span>
+        </dt>
+        <dd>
+      	My favorite genre by a small margin is "Slide show", more specifically, slide shows with a mix between author-driven and reader-driven stories.
+        For this reason I like slide shows with interactivity that enables the exploration of data while still containing visually distinct scenes
+        (as opposed to pouring all the information in one visual space).
+        </dd>
+        <dt>
+      	<span>5b: What is your least favorite genre? Why?</span>
+        </dt>
+        <dd>
+        My least favorite genre -for the purpose of story telling with data specifically- is "Partitioned Poster".
+        The reason is that I find this genre to be the least structured when it comes to the placement of annotations on the poster.
+        It often looks very irregular which makes it hard for me to know where I'm supposed to be looking, what information is relevant and what isn't etc.
+        </dd>
+      </dd>
+  </dl>
+</div>
+
+<h2>
+  Part 2
+</h2>
 <div class="timeline">
 </div><div class="map">
 </div><div class="nyc_viz">
 <script type="text/javascript">
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// NYC MAP //////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////// NYC MAP //////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
 
-//Defining margins and svg element for MAP
-var margin = {top: 100, right: 20, bottom: 200, left: 20};
-var w = 800 - margin.left - margin.right;
-var h = 600 - margin.top - margin.bottom;
-var svg = d3.select(".map")
-      .append("svg")
-      .attr("width", (w + margin.left + margin.right))
-      .attr("height", (h + margin.top + margin.bottom))
-      .append("g")
-      .attr("transform", "translate("+margin.left+","+margin.top+")");
-svg.append("rect")
-.attr("class", "boro_bg")
-   .attr("width",(w + margin.left + margin.right))
-   .attr("height", (h + margin.top + margin.bottom))
-   .attr("x", 0-margin.left)
-   .attr("y", 0-margin.top)
+  //Defining margins and svg element for MAP
+  var margin = {top: 100, right: 20, bottom: 200, left: 20};
+  var w = 800 - margin.left - margin.right;
+  var h = 600 - margin.top - margin.bottom;
+  var svg = d3.select(".map")
+        .append("svg")
+        .attr("width", (w + margin.left + margin.right))
+        .attr("height", (h + margin.top + margin.bottom))
+        .append("g")
+        .attr("transform", "translate("+margin.left+","+margin.top+")");
+  svg.append("rect")
+  .attr("class", "boro_bg")
+     .attr("width",(w + margin.left + margin.right))
+     .attr("height", (h + margin.top + margin.bottom))
+     .attr("x", 0-margin.left)
+     .attr("y", 0-margin.top)
 
 
-//Defining path generator
+  //Defining path generator
 
-var projection = d3.geoMercator()
-                   .center([-73.93,40.74])
-                   .scale(60000)
-                   .translate([w/2,h/2]);
+  var projection = d3.geoMercator()
+                     .center([-73.93,40.74])
+                     .scale(60000)
+                     .translate([w/2,h/2]);
 
-var path = d3.geoPath()
-             .projection(projection);
-var map = svg.append("g");
+  var path = d3.geoPath()
+               .projection(projection);
+  var map = svg.append("g");
 
-//Loading GeoJSON file of boroughs
-d3.json("/data/boroughs.json", function(data)
-{
-map.selectAll("path")
-   .data(data.features)
-   .enter()
-   .append("path")
-   .attr("class",function(d,i)
-    {
-      return "boro_path "+ data.features[i].properties.BoroName;
-    })
-   .attr("d",path);
-  //Text label for boroughs
-  svg.selectAll("text")
+  //Loading GeoJSON file of boroughs
+  d3.json("/data/boroughs.json", function(data)
+  {
+  map.selectAll("path")
      .data(data.features)
      .enter()
-     .append("text")
-     .attr("class","boro_label")
-     .attr("x", function(d)
+     .append("path")
+     .attr("class",function(d,i)
       {
-        return path.centroid(d)[0];
+        return "boro_path "+ data.features[i].properties.BoroName;
       })
-      .attr("y", function(d)
-      {
-        return path.centroid(d)[1];
-      })
-      .text(function(d)
-      {
-        return d.properties.BoroName;
-      })
+     .attr("d",path);
+    //Text label for boroughs
+    svg.selectAll("text")
+       .data(data.features)
+       .enter()
+       .append("text")
+       .attr("class","boro_label")
+       .attr("x", function(d)
+        {
+          return path.centroid(d)[0];
+        })
+        .attr("y", function(d)
+        {
+          return path.centroid(d)[1];
+        })
+        .text(function(d)
+        {
+          return d.properties.BoroName;
+        })
 
-  // Mouse over and out functions
-  d3.selectAll('.boro_path')
-    .on('mouseover', boro_hover);
-  d3.selectAll('.boro_path')
-    .on('mouseout', boro_hover_over);
+    // Mouse over and out functions
+    d3.selectAll('.boro_path')
+      .on('mouseover', boro_hover);
+    d3.selectAll('.boro_path')
+      .on('mouseout', boro_hover_over);
 
-  function boro_hover()
-  {
-    var hover_object = d3.select(this);
+    function boro_hover()
+    {
+      var hover_object = d3.select(this);
 
-    hover_object.style("stroke", "rgb(50,50,50)")
-                .style("stroke-width", "2px");
-  }
-  function boro_hover_over()
-  {
-    var hover_object = d3.select(this);
+      hover_object.style("stroke", "rgb(50,50,50)")
+                  .style("stroke-width", "2px");
+    }
+    function boro_hover_over()
+    {
+      var hover_object = d3.select(this);
 
-    hover_object.style("stroke", "none")
-                .style("stroke-width", "1.5px");
-  }
-})
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////// Timeline graph //////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-//Defining margins and svg element for TIMELINE
-var margin_2 = {top: 20, right: 20, bottom: 20, left: 40};
-var w_2 = 800 - margin_2.left - margin_2.right;
-var h_2 = 200 - margin_2.top - margin_2.bottom;
-var svg_2 = d3.select(".timeline")
-      .append("svg")
-      .attr("width", (w_2 + margin_2.left + margin_2.right))
-      .attr("height", (h_2 + margin_2.top + margin_2.bottom))
-      .append("g")
-      .attr("transform", "translate("+margin_2.left+","+margin_2.top+")");
-
-svg_2.append("rect")
-.attr("class", "boro_bg")
-   .attr("width",(w + margin.left + margin.right))
-   .attr("height", (h + margin.top + margin.bottom))
-   .attr("x", 0-margin_2.left)
-   .attr("y", 0-margin_2.top)
-
-svg_2.append("text")
-   .attr("class", "temp_title")
-   .text("Murders in New York City from 2006 to 2016")
-   .attr("x", w/2)
-   .attr("y", -5)
-   .attr("font-size", "20");
-
-var murder_dots = svg.append("g")
-           //.selectAll("circles")
-
-//Defining row conversion function for converting the strings from the input CSV
-var parseTime = d3.timeParse("%m/%d/%Y/%H")
-var formatTime = d3.timeFormat("%m/%d/%Y")
-var rowConverter = function(d)
-{
-  return  {boro: d.BORO_NM,
-    date: parseTime(d.RPT_DT+"/"+d.CMPLNT_FR_TM),//Parsing date and hour together
-    lon: parseFloat(d.Longitude),
-    lat: parseFloat(d.Latitude)
-  };
-}
-
-//Loading murder data from csv
-
-//lots of vars for debugging stuff
-var muder_by_day=[];
-var murder_data=[];
-//var xScale = [];
-//var yScale = [];
-//var domain_val = [];
-var subset = [];
-
-d3.csv("/data/all_murder.csv",rowConverter, function(data)
-{
-murder_data = data;
-//Removing the two observartion without coordinates
-murder_data.splice(4699,1);
-murder_data.splice(4393,1);
-murder_nested_by_day = d3.nest()
-                  .key(function(d){ return formatTime(d.date) })
-                  .entries(murder_data);
-//Creating object for line graph
-murder_per_day = [];
-parseTime = d3.timeParse("%m/%d/%Y")
-for (var i=0;i<murder_nested_by_day.length;i++)
-{
-  murder_per_day.push({date: parseTime(murder_nested_by_day[i].key),
-                       num_murder: murder_nested_by_day[i].values.length});
-}
-//murder_per_day = murder_per_day.slice(157,188)
-//Sorting by date
-murder_per_day.sort(function(a, b){
-    return a["date"]-b["date"];
-});
-//Setting up scales
- xScale = d3.scaleTime()
-               .domain(
-                 [
-                   d3.min(murder_per_day, function(d){ return d.date; }),
-                   d3.max(murder_per_day, function(d){ return d.date; })
-                 ]
-               )
-               .range([0,w_2]);
-
- yScale = d3.scaleLinear()
-               .domain([0, d3.max(murder_per_day, function(d) { return d.num_murder; })])
-               .range([h_2, 0]);
-
-//Define ine generator
-var line = d3.line()
-             .x(function(d) { return xScale(d.date); })
-             .y(function(d) { return yScale(d.num_murder); });
-
-//Creating line graph
-svg_2.append("path")
-     .datum(murder_per_day)
-     .attr("class", "line_graph")
-     .attr("d", line);
-
-//Define axes
-formatTime = d3.timeFormat("%Y")
-xAxis = d3.axisBottom()
-       .scale(xScale)
-       .ticks(20)
-       .tickFormat(formatTime);
-
-//Define Y axis
-yAxis = d3.axisLeft()
-       .scale(yScale)
-       .ticks(10);
-//Create axes
-svg_2.append("g")
-  .attr("class", "axis")
-  .attr("transform", "translate(0," + h_2 + ")")
-  .call(xAxis)
-  .selectAll("text");
-
-svg_2.append("g")
-  .attr("class", "axis")
-  .attr("transform", "translate(" + 0 + ",0)")
-  .call(yAxis);
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////// Timeline BRUSH //////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-//Defining brush
-var brush = d3.brushX()
-    .extent([[0, 0], [w_2, h_2]])
-    .on("brush", brushed);
-
-//Setting an initial range for the brush and for the murders to be displayed on the map
-var init_range =  [300, 400];
-subset = murder_data.filter(function(d)
-  {
-    var tmp = init_range.map(xScale.invert, xScale)
-    return d.date > tmp[0] && d.date < tmp[1];
+      hover_object.style("stroke", "none")
+                  .style("stroke-width", "1.5px");
+    }
   })
 
-svg_2.append("g")
-     .attr("class", "brush")
-     .call(brush)
-     .call(brush.move, init_range);
+  ////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////// Timeline graph //////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
 
-//Defining a group for displaying murders on the map
+  //Defining margins and svg element for TIMELINE
+  var margin_2 = {top: 20, right: 20, bottom: 20, left: 40};
+  var w_2 = 800 - margin_2.left - margin_2.right;
+  var h_2 = 200 - margin_2.top - margin_2.bottom;
+  var svg_2 = d3.select(".timeline")
+        .append("svg")
+        .attr("width", (w_2 + margin_2.left + margin_2.right))
+        .attr("height", (h_2 + margin_2.top + margin_2.bottom))
+        .append("g")
+        .attr("transform", "translate("+margin_2.left+","+margin_2.top+")");
 
-murder_dots.selectAll("circle")
-           .data(subset)
-           .enter()
-           .append("circle")
-           .attr("class", "murder_dot")
-           .attr("cx", function(d,i)
-            {
-              var tmp=projection([d.lon,d.lat])
-              //console.log("cx index: "+i)
-              return tmp[0];
-            })
-           .attr("cy", function(d,i)
-            {
-              var tmp=projection([d.lon,d.lat])
-              //console.log("cy index: "+i)
-              return tmp[1];
-            })
-           .attr("r", 3);
+  svg_2.append("rect")
+  .attr("class", "boro_bg")
+     .attr("width",(w + margin.left + margin.right))
+     .attr("height", (h + margin.top + margin.bottom))
+     .attr("x", 0-margin_2.left)
+     .attr("y", 0-margin_2.top)
 
+  svg_2.append("text")
+     .attr("class", "temp_title")
+     .text("Murders in New York City from 2006 to 2016")
+     .attr("x", w/2)
+     .attr("y", -5)
+     .attr("font-size", "20");
 
-function brushed() {
-  //console.log(d3.event.selection)
-  var s = d3.event.selection;
-  domain_val = s.map(xScale.invert, xScale);
+  var murder_dots = svg.append("g")
+             //.selectAll("circles")
 
+  //Defining row conversion function for converting the strings from the input CSV
+  var parseTime = d3.timeParse("%m/%d/%Y/%H")
+  var formatTime = d3.timeFormat("%m/%d/%Y")
+  var rowConverter = function(d)
+  {
+    return  {boro: d.BORO_NM,
+      date: parseTime(d.RPT_DT+"/"+d.CMPLNT_FR_TM),//Parsing date and hour together
+      lon: parseFloat(d.Longitude),
+      lat: parseFloat(d.Latitude)
+    };
+  }
+
+  //Loading murder data from csv
+
+  //lots of vars for debugging stuff
+  var muder_by_day=[];
+  var murder_data=[];
+  //var xScale = [];
+  //var yScale = [];
+  //var domain_val = [];
+  var subset = [];
+
+  d3.csv("/data/all_murder.csv",rowConverter, function(data)
+  {
+  murder_data = data;
+  //Removing the two observartion without coordinates
+  murder_data.splice(4699,1);
+  murder_data.splice(4393,1);
+  murder_nested_by_day = d3.nest()
+                    .key(function(d){ return formatTime(d.date) })
+                    .entries(murder_data);
+  //Creating object for line graph
+  murder_per_day = [];
+  parseTime = d3.timeParse("%m/%d/%Y")
+  for (var i=0;i<murder_nested_by_day.length;i++)
+  {
+    murder_per_day.push({date: parseTime(murder_nested_by_day[i].key),
+                         num_murder: murder_nested_by_day[i].values.length});
+  }
+  //murder_per_day = murder_per_day.slice(157,188)
+  //Sorting by date
+  murder_per_day.sort(function(a, b){
+      return a["date"]-b["date"];
+  });
+  //Setting up scales
+   xScale = d3.scaleTime()
+                 .domain(
+                   [
+                     d3.min(murder_per_day, function(d){ return d.date; }),
+                     d3.max(murder_per_day, function(d){ return d.date; })
+                   ]
+                 )
+                 .range([0,w_2]);
+
+   yScale = d3.scaleLinear()
+                 .domain([0, d3.max(murder_per_day, function(d) { return d.num_murder; })])
+                 .range([h_2, 0]);
+
+  //Define ine generator
+  var line = d3.line()
+               .x(function(d) { return xScale(d.date); })
+               .y(function(d) { return yScale(d.num_murder); });
+
+  //Creating line graph
+  svg_2.append("path")
+       .datum(murder_per_day)
+       .attr("class", "line_graph")
+       .attr("d", line);
+
+  //Define axes
+  formatTime = d3.timeFormat("%Y")
+  xAxis = d3.axisBottom()
+         .scale(xScale)
+         .ticks(20)
+         .tickFormat(formatTime);
+
+  //Define Y axis
+  yAxis = d3.axisLeft()
+         .scale(yScale)
+         .ticks(10);
+  //Create axes
+  svg_2.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0," + h_2 + ")")
+    .call(xAxis)
+    .selectAll("text");
+
+  svg_2.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + 0 + ",0)")
+    .call(yAxis);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////// Timeline BRUSH //////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+
+  //Defining brush
+  var brush = d3.brushX()
+      .extent([[0, 0], [w_2, h_2]])
+      .on("brush", brushed);
+
+  //Setting an initial range for the brush and for the murders to be displayed on the map
+  var init_range =  [300, 400];
   subset = murder_data.filter(function(d)
     {
-      return d.date > domain_val[0] && d.date < domain_val[1];
+      var tmp = init_range.map(xScale.invert, xScale)
+      return d.date > tmp[0] && d.date < tmp[1];
     })
-  //console.log(murder_dots.selectAll("circle")._groups)
-  console.log(subset.length)
-  //Adding new circles and updating old+new ones
+
+  svg_2.append("g")
+       .attr("class", "brush")
+       .call(brush)
+       .call(brush.move, init_range);
+
+  //Defining a group for displaying murders on the map
+
   murder_dots.selectAll("circle")
              .data(subset)
              .enter()
@@ -334,37 +344,71 @@ function brushed() {
                 //console.log("cy index: "+i)
                 return tmp[1];
               })
-             .attr("r", 3)
-             .attr("opacity", 0)
-             .merge(murder_dots.selectAll("circle"))
-             .attr("cx", function(d,i)
-              {
-                var tmp=projection([d.lon,d.lat])
-                //console.log("cx index: "+i)
-                return tmp[0];
-              })
-             .attr("cy", function(d,i)
-              {
-                var tmp=projection([d.lon,d.lat])
-                //console.log("cy index: "+i)
-                return tmp[1];
-              })
-             .attr("r", 3)
-             .attr("opacity", 1);
+             .attr("r", 3);
 
 
-  //Removing circles that are out of the brush window
-  murder_dots.selectAll("circle")
-             .data(subset)
-             .exit()
-             .attr("opacity",0)
-             .remove();
+  function brushed() {
+    //console.log(d3.event.selection)
+    var s = d3.event.selection;
+    domain_val = s.map(xScale.invert, xScale);
 
-}
+    subset = murder_data.filter(function(d)
+      {
+        return d.date > domain_val[0] && d.date < domain_val[1];
+      })
+    //console.log(murder_dots.selectAll("circle")._groups)
+    console.log(subset.length)
+    //Adding new circles and updating old+new ones
+    murder_dots.selectAll("circle")
+               .data(subset)
+               .enter()
+               .append("circle")
+               .attr("class", "murder_dot")
+               .attr("cx", function(d,i)
+                {
+                  var tmp=projection([d.lon,d.lat])
+                  //console.log("cx index: "+i)
+                  return tmp[0];
+                })
+               .attr("cy", function(d,i)
+                {
+                  var tmp=projection([d.lon,d.lat])
+                  //console.log("cy index: "+i)
+                  return tmp[1];
+                })
+               .attr("r", 3)
+               .attr("opacity", 0)
+               .merge(murder_dots.selectAll("circle"))
+               .attr("cx", function(d,i)
+                {
+                  var tmp=projection([d.lon,d.lat])
+                  //console.log("cx index: "+i)
+                  return tmp[0];
+                })
+               .attr("cy", function(d,i)
+                {
+                  var tmp=projection([d.lon,d.lat])
+                  //console.log("cy index: "+i)
+                  return tmp[1];
+                })
+               .attr("r", 3)
+               .attr("opacity", 1);
 
 
-})
+    //Removing circles that are out of the brush window
+    murder_dots.selectAll("circle")
+               .data(subset)
+               .exit()
+               .attr("opacity",0)
+               .remove();
+
+  }
+
+
+  })
 </script>
 </div>
+
+
 </body>
 </html>
