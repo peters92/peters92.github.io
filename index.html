@@ -204,10 +204,15 @@
         return  {
                 //IF UPDATED-> ALSO UPDATE DROPDOWN DICT
                 year_built: parseFloat(d.year_built.replace(",","")),
-                lon: parseFloat(d.Longitude),
-                lat: parseFloat(d.Latitude),
+                gfa: parseFloat(d.DOF_gross_floor_area),
+                es_score: parseFloat(d.energy_star_score),
+                tot_ghg: parseFloat(d.total_GHG_emissions),
+                water_use: parseFloat(d.water_use),
+                num_buildings: parseFloat(d.number_of_buildings),
                 wn_site_eui: parseFloat(d.wn_site_eui),
                 wn_source_eui: parseFloat(d.wn_source_eui),
+                lon: parseFloat(d.Longitude),
+                lat: parseFloat(d.Latitude),
                 boro: d.borough
         }
         };
@@ -248,6 +253,11 @@
         dict =
         {
           year_built: "Year built",
+          gfa: "Gross Floor Area [ft^2]",
+          es_score: "Energy Star Score [1-100]",
+          tot_ghg: "Total GHG Emissions [metric ton]",
+          num_buildings: "Number of buildings on property",
+          water_use: "Water use [kgal]",
           lon: "Longitude",
           lat: "Latitude",
           wn_site_eui: "Weather Norm. site EUI [kBTU/f^2]",
@@ -261,7 +271,7 @@
         dropdown_menu_x=d3.selectAll(".dropdown-content")._groups[0][0];
         dropdown_menu_y=d3.selectAll(".dropdown-content")._groups[0][1];
 
-        for (var i=0;i<variables.length;i++)
+        for (var i=0;i<variables.length-1;i++)
         {
           tmp_drop_element = document.createElement("a");
           var tmp_drop_text = document.createTextNode(dict[variables[i]]);
