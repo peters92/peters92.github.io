@@ -59,15 +59,30 @@ body{
     fill: rgb(32, 41, 58);
   }*/
 
-/*ZOOM STYLING*/
-  .zoom_hl {
-    stroke-width: 1px;
-  }
-  .zoom_fade {
-    fill-opacity: 0.2;
-    stroke-opacity: 0.8;
-  }
-/*ZOOM STYLING END*/
+/* SCATTER STYLING */
+.axis text{
+  fill: rgb(200,200,200);
+  font-weight: normal;
+  font-size: 12px;
+}
+.axis line, .axis path{
+  stroke: rgb(200,200,200);
+  stroke-width: 0.5px;
+  shape-rendering: crispEdges;
+}
+
+.label text{
+  font-family: Arial;
+  fill: rgb(200,200,200);
+  font-weight: normal;
+  font-size: 16px;
+}
+.scatter_title text{
+  font-family: Arial;
+  fill: rgb(200,200,200);
+  font-weight: normal;
+}
+/* END OF SCATTER STYLING */
 
 /*MENU STYLING*/
 .navbar {
@@ -140,7 +155,15 @@ body{
 }
 /*END OF MENU STYLING*/
 
-
+/*ZOOM STYLING*/
+  .zoom_hl {
+    stroke-width: 1px;
+  }
+  .zoom_fade {
+    fill-opacity: 0.2;
+    stroke-opacity: 0.8;
+  }
+/*ZOOM STYLING END*/
 
 /*
 main: bg: rgb(32, 32, 32)
