@@ -3,595 +3,324 @@
     <head>
         <meta charset="utf-8">
         <title>NYC Energy & Water</title>
+        <link rel="shortcut icon" type="image/png" href="/data/favicon.png"/>
         <script type="text/javascript" src="d3/d3.min.js"></script>
         <script type="text/javascript" src="d3/d3-scale-chromatic.v1.min.js"></script>
         <link rel="stylesheet" type="text/css" href="css/style.css" media="screen" />
     </head>
     <body>
-    <div class="content">
-      <!--Menu-->
-      <div class="navbar">
-        <a href="#home">test1</a>
-        <a href="#news">test2</a>
-        <div class="dropdown">
-          <button class="dropbtn" onclick="xaxis_func()">X-axis
-            <i class="fa fa-caret-down"></i>
-          </button>
-          <div class="dropdown-content" id="x_axis_selector">
-          </div>
-        </div>
-
-
-        <div class="dropdown">
-          <button class="dropbtn" onclick="yaxis_func()">Y-axis
-            <i class="fa fa-caret-down"></i>
-          </button>
-          <div class="dropdown-content" id="y_axis_selector">
-          </div>
-        </div>
+      <div class="navbar_header navbar">
+        <a href="https://github.com/peters92/peters92.github.io" target="_blank">Github</a>
+        <a href="#exp_page" target="_blank">Explainer Page</a>
       </div>
+    <div class="story_div header">
+      <header>
+        <h1>whats up</h1>
+      </header>
+    </div>
+
+    <div class="vis_div">
+      <div class="content">
+        <!--Menu-->
+        <div class="navbar">
+          <a class="animation_btn" href="#home">Animate</a>
+          <div class="dropdown">
+            <button class="dropbtn" onclick="xaxis_func()">Select X-axis
+              <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content" id="x_axis_selector">
+            </div>
+          </div>
+
+
+          <div class="dropdown">
+            <button class="dropbtn" onclick="yaxis_func()">Select Y-axis
+              <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content" id="y_axis_selector">
+            </div>
+          </div>
+        </div>
+
+        <script>
+        function xaxis_func(){
+            document.getElementById("x_axis_selector").classList.toggle("show_x");
+            if (document.getElementById("y_axis_selector").classList.contains("show_y"))
+            {
+            document.getElementById("y_axis_selector").classList.toggle("show_y");
+            }
+        }
+        function yaxis_func(){
+            document.getElementById("y_axis_selector").classList.toggle("show_y");
+            if (document.getElementById("x_axis_selector").classList.contains("show_x"))
+            {
+            document.getElementById("x_axis_selector").classList.toggle("show_x");
+            }
+        }
+        </script>
+
+
+      <div class="scatter_div"></div>
 
       <script>
-      function xaxis_func(){
-          document.getElementById("x_axis_selector").classList.toggle("show_x");
-          if (document.getElementById("y_axis_selector").classList.contains("show_y"))
-          {
-          document.getElementById("y_axis_selector").classList.toggle("show_y");
-          }
-      }
-      function yaxis_func(){
-          document.getElementById("y_axis_selector").classList.toggle("show_y");
-          if (document.getElementById("x_axis_selector").classList.contains("show_x"))
-          {
-          document.getElementById("x_axis_selector").classList.toggle("show_x");
-          }
-      }
-      </script>
-    <!--Menu end-->
+      //Initializing
+      //Getting client resolution
+      var client_res=[window.screen.width, window.screen.height];
+      var svg_to_screen_ratio=0.75;
+      var map_to_screen_ratio=0.42;
+      var scatter_to_screen_ratio=0.45;
+      var map_dot_size = 10e-4*client_res[1];
+      var scatter_dot_size = 2.5e-3*client_res[1];
 
-    <div class="scatter_div"></div>
+      /////////////////////////// Initialize SVG /////////////////////////////////
+      //NEW
+      var svg_width=client_res[1]*svg_to_screen_ratio;
+      var svg_height=svg_width*1.05;
+      var margin = {top: 5, right: 10, bottom: 10, left: 10};
+      var svg_w = svg_width - margin.left - margin.right;
+      var svg_h = svg_height - margin.top - margin.bottom;
 
-    <script>
-    //Initializing
-    //Getting client resolution
-    var client_res=[window.screen.width, window.screen.height];
-    var svg_to_screen_ratio=0.75;
-    var map_to_screen_ratio=0.42;
-    var scatter_to_screen_ratio=0.45;
-    var map_dot_size = 10e-4*client_res[1];
-    var scatter_dot_size = 2.5e-3*client_res[1];
+      var svg = d3.select(".scatter_div")
+                          .append("svg")
+                          .attr("width", (svg_width))
+                          .attr("height", (svg_height))
+                          .append("g")
+                          .attr("transform", "translate("+margin.left+","+margin.top+")");
+      svg.append("rect")
+      .attr("class", "border_rect")
+         .attr("width",(svg_width))
+         .attr("height", (svg_height))
+         .attr("x", -margin.left)
+         .attr("y", -margin.top)
+         .attr("stroke", "rgb(200,200,200)")
+      svg.append("rect")
+       .attr("class", "border_rect_inner")
+          .attr("width",(svg_w))
+          .attr("height", (svg_h))
+          .attr("x", 0)
+          .attr("y", 0)
+          .attr("stroke", "rgb(200,200,200)")
 
-    /////////////////////////// Initialize SVG /////////////////////////////////
-    //NEW
-    var svg_width=client_res[1]*svg_to_screen_ratio;
-    var svg_height=svg_width*1.05;
-    var margin = {top: 5, right: 10, bottom: 10, left: 10};
-    var svg_w = svg_width - margin.left - margin.right;
-    var svg_h = svg_height - margin.top - margin.bottom;
+      //END OF NEW
+      ////////////////////// Initialize Scatter Plot /////////////////////////////
+      var scatter_width=svg_w;
+      var scatter_height=scatter_width*0.5;
+      var scatter_margin = {top: 50, right: 10, bottom: 40, left: 90};
+      var scatter_w = scatter_width - scatter_margin.left - scatter_margin.right;
+      var scatter_h = scatter_height - scatter_margin.top - scatter_margin.bottom;
 
-    var svg = d3.select(".scatter_div")
-                        .append("svg")
-                        .attr("width", (svg_width))
-                        .attr("height", (svg_height))
-                        .append("g")
-                        .attr("transform", "translate("+margin.left+","+margin.top+")");
-    svg.append("rect")
-    .attr("class", "border_rect")
-       .attr("width",(svg_width))
-       .attr("height", (svg_height))
-       .attr("x", -margin.left)
-       .attr("y", -margin.top)
-       .attr("stroke", "rgb(200,200,200)")
-    svg.append("rect")
-     .attr("class", "border_rect_inner")
-        .attr("width",(svg_w))
-        .attr("height", (svg_h))
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("stroke", "rgb(200,200,200)")
+      var scatter_svg = svg.append("g")
+                          .attr("transform", "translate("+scatter_margin.left+","+(scatter_margin.top)+")");
+      scatter_svg.append("clipPath")
+                 .attr("id", "scatter_clip")
+                 .append("rect")
+                 .attr("x",0)
+                 .attr("y", 0)
+                 .attr("width",scatter_w)
+                 .attr("height",scatter_h);
 
-    //END OF NEW
-    ////////////////////// Initialize Scatter Plot /////////////////////////////
-    var scatter_width=svg_w;
-    var scatter_height=scatter_width*0.5;
-    var scatter_margin = {top: 50, right: 10, bottom: 40, left: 90};
-    var scatter_w = scatter_width - scatter_margin.left - scatter_margin.right;
-    var scatter_h = scatter_height - scatter_margin.top - scatter_margin.bottom;
+      scatter_svg.append("rect")
+      .attr("class", "scatter_rect")
+         .attr("width",(scatter_width))
+         .attr("height", (scatter_height))
+         .attr("x", -scatter_margin.left)
+         .attr("y", -scatter_margin.top)
+       scatter_svg.append("rect")
+       .attr("class", "scatter_rect_inner")
+          .attr("width",(scatter_w))
+          .attr("height", (scatter_h))
+          .attr("x", 0)
+          .attr("y", 0)
 
-    var scatter_svg = svg.append("g")
-                        .attr("transform", "translate("+scatter_margin.left+","+(scatter_margin.top)+")");
-    scatter_svg.append("clipPath")
-               .attr("id", "scatter_clip")
-               .append("rect")
-               .attr("x",0)
-               .attr("y", 0)
-               .attr("width",scatter_w)
-               .attr("height",scatter_h);
+      //////////////////////// Initialize NYC MAP ////////////////////////////////
 
-    scatter_svg.append("rect")
-    .attr("class", "scatter_rect")
-       .attr("width",(scatter_width))
-       .attr("height", (scatter_height))
-       .attr("x", -scatter_margin.left)
-       .attr("y", -scatter_margin.top)
-     scatter_svg.append("rect")
-     .attr("class", "scatter_rect_inner")
-        .attr("width",(scatter_w))
-        .attr("height", (scatter_h))
-        .attr("x", 0)
-        .attr("y", 0)
+      //Defining margins and svg element for MAP
 
-    //////////////////////// Initialize NYC MAP ////////////////////////////////
+      var map_width=client_res[1]*map_to_screen_ratio;
+      var map_height=map_width;
+      var map_margin = {top: 60, right: 10, bottom: 20, left: 20};
+      var map_w = map_width - map_margin.left - map_margin.right;
+      var map_h = map_height - map_margin.top - map_margin.bottom;
 
-    //Defining margins and svg element for MAP
+      var map_svg = svg.append("g")
+                      .attr("transform", "translate("+(map_margin.left+(svg_w-map_width))+","+
+                        (map_margin.top+scatter_height)+")");
 
-    var map_width=client_res[1]*map_to_screen_ratio;
-    var map_height=map_width;
-    var map_margin = {top: 60, right: 10, bottom: 20, left: 20};
-    var map_w = map_width - map_margin.left - map_margin.right;
-    var map_h = map_height - map_margin.top - map_margin.bottom;
+      map_svg.append("rect")
+      .attr("class", "test_rect_bg")
+         .attr("width",(map_width))
+         .attr("height", (map_height))
+         .attr("x", -map_margin.left)
+         .attr("y", -map_margin.top)
+         .attr("stroke", "rgb(200,200,200)")
 
-    var map_svg = svg.append("g")
-                    .attr("transform", "translate("+(map_margin.left+(svg_w-map_width))+","+
-                      (map_margin.top+scatter_height)+")");
+      //Inner test rect, also MAP BG used for ZOOM, keep it.
+      map_svg.append("rect")
+      .attr("class", "test_rect map_bg")
+         .attr("width",(map_w))
+         .attr("height", (map_h))
+         .attr("x", 0)
+         .attr("y", 0);
 
-    map_svg.append("rect")
-    .attr("class", "test_rect_bg")
-       .attr("width",(map_width))
-       .attr("height", (map_height))
-       .attr("x", -map_margin.left)
-       .attr("y", -map_margin.top)
-       .attr("stroke", "rgb(200,200,200)")
+      //Creating title
+      var map_title = map_svg.append("g")
+             .attr("class","map_title")
+             .append("text")
+             .attr("x", map_w/2)
+             .attr("y", -15)
+             .attr("text-anchor", "middle")
+             .text("New York City")
 
-    //Inner test rect, also MAP BG used for ZOOM, keep it.
-    map_svg.append("rect")
-    .attr("class", "test_rect map_bg")
-       .attr("width",(map_w))
-       .attr("height", (map_h))
-       .attr("x", 0)
-       .attr("y", 0);
+      //Defining path generator
+      var map_scale = map_height*85;
+      var map_center = [-73.95,40.66];
+      var projection = d3.geoMercator()
+                         .center(map_center)
+                         .scale(map_scale)
+                         .translate([map_width/2,map_height/2]);
 
-    //Creating title
-    var map_title = map_svg.append("g")
-           .attr("class","map_title")
-           .append("text")
-           .attr("x", map_w/2)
-           .attr("y", -15)
-           .attr("text-anchor", "middle")
-           .text("New York City")
+      var path = d3.geoPath()
+                   .projection(projection);
 
-    //Defining path generator
-    var map_scale = map_height*85;
-    var map_center = [-73.95,40.66];
-    var projection = d3.geoMercator()
-                       .center(map_center)
-                       .scale(map_scale)
-                       .translate([map_width/2,map_height/2]);
+      //CLIPPING on MAP
+      map_svg.append("clipPath")
+         .attr("id","map_clip")
+         .append("rect")
+         .attr("x",0)
+         .attr("y",0)
+         .attr("width",map_w)
+         .attr("height",map_h);
 
-    var path = d3.geoPath()
-                 .projection(projection);
+      var map = map_svg.append("g").attr("clip-path","url(#map_clip)");
 
-    //CLIPPING on MAP
-    map_svg.append("clipPath")
-       .attr("id","map_clip")
-       .append("rect")
-       .attr("x",0)
-       .attr("y",0)
-       .attr("width",map_w)
-       .attr("height",map_h);
+      // Initialize info box
+      var info_box = svg.append("g")
+                        .attr("class", "info")
+                        .attr("transform", "translate("+margin.left+","+(map_margin.top+scatter_height)+")")
+      var info_to_map_margin = 10;
+      var info_width = svg_w - map_width - info_to_map_margin - margin.right
 
-    var map = map_svg.append("g").attr("clip-path","url(#map_clip)");
+      info_box.append("rect")
+              .attr("class", "info_box_border")
+              .attr("x",0)
+              .attr("y",0)
+              .attr("width",info_width)
+              .attr("height", map_h);
 
-    // Initialize info box
-    var info_box = svg.append("g")
-                      .attr("class", "info")
-                      .attr("transform", "translate("+margin.left+","+(map_margin.top+scatter_height)+")")
-    var info_to_map_margin = 10;
-    var info_width = svg_w - map_width - info_to_map_margin - margin.right
-
-    info_box.append("rect")
-            .attr("class", "info_box_border")
-            .attr("x",0)
-            .attr("y",0)
-            .attr("width",info_width)
-            .attr("height", map_h);
-
-    //Creating text lines with some default values
-    info_box.append("text")
-    .classed("info_title", true)
-    .attr("x", info_width/2)
-    .attr("y",-15)
-    .text("Detailed information")
-
-    var default_text =
-    [
-      "",
-      "",
-      "",
-      "Click on data points above",
-      "to display more information",
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
-    ];
-    for (var i=0;i<default_text.length;i++)
-    {
+      //Creating text lines with some default values
       info_box.append("text")
-      .classed("line"+i,true)
+      .classed("info_title", true)
       .attr("x", info_width/2)
-      .attr("y",(30+i*30))
-      .text(default_text[i])
-    }
+      .attr("y",-15)
+      .text("Detailed information")
 
-    ////////////////////////////////////////////////////////////////////////
-    /////////////////////////////// LOADING DATA ///////////////////////////
-    ////////////////////////////////////////////////////////////////////////
-
-    //Variables for debugging
-    var ew_data=[];
-    var ew_data_full=[];
-    var map_data=[];
-    /*var x_selection=[];
-    var y_selection=[];
-    var xScale=[];
-    var yScale=[];*/
-    var clicked_boro=[];
-    var boro_info={};
-    var ew_data_subset=[];
-    var tmp_drop_element;
-    var dropdown_menu;
-    var debug;
-    var scatter_update;
-    var scatter_title_string;
-    var x_brush;
-    var y_brush;
-    var x_val;
-    var y_val;
-    var map_update;
-    var clicked_id;
-    var brushing_bool=false;
-
-    var zoomed=false;
-
-    //Defining the row converter function
-    var rowConverter = function(d)
-    {
-
-      if (d.Longitude!="")
+      var default_text =
+      [
+        "",
+        "",
+        "Click on data points above",
+        "or hover on the map while zoomed in",
+        "to display more information",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ];
+      for (var i=0;i<default_text.length;i++)
       {
-      return  {
-              //IF UPDATED-> ALSO UPDATE DROPDOWN DICT
-              year_built: parseFloat(d.year_built.replace(",","")),
-              gfa: parseFloat(d.DOF_gross_floor_area.replace(",","")),
-              property_GFA: parseFloat(d.property_GFA.replace(",","")),
-              es_score: parseFloat(d.energy_star_score),
-              tot_ghg: parseFloat(d.total_GHG_emissions),
-              water_use: parseFloat(d.water_use),
-              water_intensity: parseFloat(d.water_intensity),
-              site_eui: parseFloat(d.site_eui),
-              source_eui: parseFloat(d.source_eui),
-              wn_site_eui: parseFloat(d.wn_site_eui),
-              wn_source_eui: parseFloat(d.wn_source_eui),
-              wn_site_electricity_intensity: parseFloat(d.wn_site_electricity_intensity),
-              wn_site_electricity: parseFloat(d.wn_site_electricity),
-              electricity_use_grid_purchase: parseFloat(d.electricity_use_grid_purchase),
-              num_buildings: parseFloat(d.number_of_buildings),
-              lon: parseFloat(d.Longitude),
-              lat: parseFloat(d.Latitude),
-              boro: d.borough,
-              property_name: d.property_name,
-              address_1: d.address_1,
-              street_name: d.street_name,
-              street_number: d.street_number,
-              primary_prop_type: d.primary_prop_type,
-              order: parseFloat(d.Order.replace(",",""))
-      }
-      };
-    }
-
-    d3.csv("/data/energy_water_2016_filtered.csv",rowConverter,function(data)
-    {
-
-      ew_data_full=data;
-      ew_data=data;
-
-      var map_dots=map_svg.append("g").attr("clip-path","url(#map_clip)");
-
-      map_dots.selectAll("circle")
-             .data(ew_data)
-             .enter()
-             .append("circle")
-             .attr("class", function(d)
-                  {
-                    return "map_dot "+d.order;
-                  })
-             .attr("cx", function(d,i)
-              {
-                var tmp=projection([d.lon,d.lat])
-                return tmp[0];
-              })
-             .attr("cy", function(d,i)
-              {
-                var tmp=projection([d.lon,d.lat])
-                return tmp[1];
-              })
-             .attr("r", map_dot_size)
-             .attr("opacity",0.5);
-
-      d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
-
-      //Defining crosshair
-      var crosshair_g = map_svg.append("g").attr("class","crosshair").attr("clip-path","url(#map_clip)")
-      var chx_pos = [[-80, 40.75], [-72,40.75]];
-      default_proj_x_x = projection(chx_pos[0]);
-      default_proj_x_y = projection(chx_pos[1]);
-      crosshair_g.append("line")
-             .attr("class", "h_crosshair")
-             .attr("x1",default_proj_x_x[0])
-             .attr("x2",default_proj_x_y[0])
-             .attr("y1",default_proj_x_x[1])
-             .attr("y2",default_proj_x_y[1])
-      var chy_pos = [[-74, 42], [-74,39]];
-      default_proj_y_x = projection(chy_pos[0]);
-      default_proj_y_y = projection(chy_pos[1]);
-      crosshair_g.append("line")
-             .attr("class", "v_crosshair")
-             .attr("x1",default_proj_y_x[0])
-             .attr("x2",default_proj_y_y[0])
-             .attr("y1",default_proj_y_x[1])
-             .attr("y2",default_proj_y_y[1])
-
-      ///////////////////////////////SCATTER PLOT//////////////////////////////
-
-      /////////////////////////////DROPDOWN MENU///////////////////////////////
-      //dictionary for nicer variable names, min and max values, filtered values and type distinction
-      dict =
-      {
-        year_built: {name: "Year built", min: NaN, max: NaN, filter: null, type: "year"},
-        gfa: {name: "Gross Floor Area [ft\u00B2] (acc. to Department of Finance)", min: 50000, max: NaN, filter: null, type: null},
-        property_GFA: {name: "Gross Floor Area [ft\u00B2]", min: 50000, max: NaN, filter: null, type: null},
-        es_score: {name: "Energy Star Score [1-100]", min: NaN, max: NaN, filter: null, type: null},
-        tot_ghg: {name: "Total GHG Emissions [metric tons CO\u00B2e]", min: NaN, max: NaN, filter: null, type: null},
-        num_buildings: {name: "Number of buildings on property", min: NaN, max: 35, filter: null, type: null},
-        water_use: {name: "Water use [kgal]", min: NaN, max: 1000000, filter: null, type: null},
-        water_intensity: {name: "Water Intensity [gal/ft\u00B2]", min: 1, max: 20000, filter: null, type: null},
-        lon: {name: "Longitude [°]", min: NaN, max: NaN, filter: null, type: null},
-        lat: {name: "Latitude [°]", min: NaN, max: NaN, filter: null, type: null},
-        site_eui: {name: "Site EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: null},
-        source_eui: {name: "Source EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: null},
-        wn_site_eui: {name: "Weather Norm. site EUI [kBTU/ft\u00B2]", min: NaN, max: 10000, filter: null, type: null},
-        wn_source_eui: {name: "Weather Norm. source EUI [kBTU/ft\u00B2]", min: NaN, max: 10000, filter: null, type: null},
-        wn_site_electricity_intensity: {name: "Weather normalized site electricity intensity [kWh/ft\u00B2]", min: NaN, max: 150, filter: null, type: null},
-        electricity_use_grid_purchase: {name: "Electricity use, grid purchase [kBTU]", min: NaN, max: NaN, filter: null, type: null},
-        wn_site_electricity: {name: "Weather Norm. Electricity [kWh]", min: NaN, max: 60000000, filter: null, type: null},
-        boro: {name: "NYC Borough", min: NaN, max: NaN, filter: null, type: null},
-        property_name: {name: "Property Name", min: NaN, max: NaN, filter: null, type: null},
-        address_1: {name: "Address 1", min: NaN, max: NaN, filter: null, type: null},
-        street_name: {name: "Street name", min: NaN, max: NaN, filter: null, type: null},
-        street_number: {name: "Street number", min: NaN, max: NaN, filter: null, type: null},
-        primary_prop_type: {name: "Property Type", min: NaN, max: NaN, filter: null, type: null},
-        order: {name: "Order", min: NaN, max: NaN, filter: null, type: null}
+        info_box.append("text")
+        .classed("line"+i,true)
+        .attr("x", info_width/2)
+        .attr("y",(30+i*30))
+        .text(default_text[i])
       }
 
-      //Populating dropdown menu with possible variables
-      var variables=Object.keys(ew_data_full[0]);
+      //Brush info on map
+      var brush_box = map_svg.append("g")
+                        .attr("class", "brush_info")
+      brush_box.append("text")
+              .classed("brush_info_text", true)
+              .attr("x", map_w/4+18)
+              .attr("y", 40)
+              .text("")
+      ////////////////////////////////////////////////////////////////////////
+      /////////////////////////////// LOADING DATA ///////////////////////////
+      ////////////////////////////////////////////////////////////////////////
 
-      dropdown_menu_x=d3.selectAll(".dropdown-content")._groups[0][0];
-      dropdown_menu_y=d3.selectAll(".dropdown-content")._groups[0][1];
+      //Variables for debugging
+      var ew_data=[];
+      var ew_data_full=[];
+      var map_data=[];
+      /*var x_selection=[];
+      var y_selection=[];
+      var xScale=[];
+      var yScale=[];*/
+      var clicked_boro=[];
+      var boro_info={};
+      var ew_data_subset=[];
+      var tmp_drop_element;
+      var dropdown_menu;
+      var debug;
+      var scatter_update;
+      var scatter_title_string;
+      var x_brush;
+      var y_brush;
+      var x_val;
+      var y_val;
+      var map_update;
+      var clicked_id;
+      var brushing_bool=false;
 
-      for (var i=0;i<variables.length-7;i++) //loop length modified to stop before boro for now
+      var zoomed=false;
+
+      //Defining the row converter function
+      var rowConverter = function(d)
       {
-        tmp_drop_element = document.createElement("a");
-        var tmp_drop_text = document.createTextNode(dict[variables[i]].name);
 
-        tmp_drop_element.appendChild(tmp_drop_text); //for x-axis
-        tmp_drop_element.className = "drop dropx "+variables[i];
-        tmp_drop_element_cln=tmp_drop_element.cloneNode(true); //clone for y-axis
-        tmp_drop_element_cln.className = "drop dropy "+variables[i];
-
-        dropdown_menu_x.appendChild(tmp_drop_element);
-        dropdown_menu_y.appendChild(tmp_drop_element_cln);
-      }
-
-      //Default selection for X- and Y-axis
-      x_selection="year_built";
-      document.getElementsByClassName("dropx year_built")[0].classList.toggle("drop_selected");
-      y_selection="lat";
-      document.getElementsByClassName("dropy lat")[0].classList.toggle("drop_selected");
-
-      //Dropdown selection function
-      window.onclick = function(d) {
-        if (!d.target.matches('.scatter_dot')&&!d.target.matches('.map_dot'))
+        if (d.Longitude!="")
         {
-          //Defaulting the info_box text
-          for (var i=0;i<default_text.length;i++)
-          {
-            d3.select(".line"+i).text(default_text[i])
-          }
-          //Hiding cross-hair
-          if (!d.target.matches('.boro_path'))
-          {
-            crosshair_g.select(".h_crosshair").classed("visible", false)
-            crosshair_g.select(".v_crosshair").classed("visible", false)
-          }
+        return  {
+                //IF UPDATED-> ALSO UPDATE DROPDOWN DICT
+                year_built: parseFloat(d.year_built.replace(",","")),
+                gfa: parseFloat(d.DOF_gross_floor_area.replace(",","")),
+                property_GFA: parseFloat(d.property_GFA.replace(",","")),
+                es_score: parseFloat(d.energy_star_score),
+                tot_ghg: parseFloat(d.total_GHG_emissions),
+                water_use: parseFloat(d.water_use),
+                water_intensity: parseFloat(d.water_intensity),
+                site_eui: parseFloat(d.site_eui),
+                source_eui: parseFloat(d.source_eui),
+                wn_site_eui: parseFloat(d.wn_site_eui),
+                wn_source_eui: parseFloat(d.wn_source_eui),
+                wn_site_electricity_intensity: parseFloat(d.wn_site_electricity_intensity),
+                wn_site_electricity: parseFloat(d.wn_site_electricity)/1000,
+                electricity_use_grid_purchase: parseFloat(d.electricity_use_grid_purchase),
+                num_buildings: parseFloat(d.number_of_buildings),
+                lon: parseFloat(d.Longitude),
+                lat: parseFloat(d.Latitude),
+                boro: d.borough,
+                property_name: d.property_name,
+                address_1: d.address_1,
+                street_name: d.street_name,
+                street_number: d.street_number,
+                primary_prop_type: d.primary_prop_type,
+                order: parseFloat(d.Order.replace(",",""))
         }
-        if (d.target.matches('.drop')) {
-          drop_selection = d.target.classList[2];
-          //Selecting variables and calling scatter_update based on if it's x or y axis
-          if (d.target.classList.contains("dropx"))
-          {
-            x_selection=drop_selection;
-          }
-          else
-          {
-            y_selection=drop_selection;
-          }
-          //Calling the update
-          scatter_update(x_selection, y_selection);
-
-          debug = d.target;
-
-          //Styling the selected menu item
-          if (d.target.classList.contains("dropx"))
-          {
-            if (typeof document.getElementsByClassName("dropx drop_selected")[0] !== 'undefined')
-            {
-              document.getElementsByClassName("dropx drop_selected")[0].classList.toggle("drop_selected");
-            }
-            d.target.classList.toggle("drop_selected");
-          }
-          else
-          {
-            if (typeof document.getElementsByClassName("dropy drop_selected")[0] !== 'undefined')
-            {
-              document.getElementsByClassName("dropy drop_selected")[0].classList.toggle("drop_selected");
-            }
-            d.target.classList.toggle("drop_selected");
-          }
-        }
+        };
       }
 
-      ////////////////////////END OF DROPDOWN MENU/////////////////////////////
-
-      //SCALES - creating new variables
-
-      var x_min=d3.min(ew_data, function(d)
-                                {
-                                  //checking for min value in dictionary
-                                  tmp_min = dict[x_selection].min
-                                  if (!isNaN(tmp_min))
-                                  {
-                                    if (d[x_selection]>tmp_min)
-                                    {
-                                      return d[x_selection];
-                                    }
-                                  }
-                                  else
-                                  {
-                                    return d[x_selection];
-                                  }
-                                });
-      var x_max=d3.max(ew_data, function(d)
-                                {
-                                  //checking for max value in dictionary
-                                  tmp_max = dict[x_selection].max
-                                  if (!isNaN(tmp_max))
-                                  {
-                                    if (d[x_selection]<tmp_max)
-                                    {
-                                      return d[x_selection];
-                                    }
-                                  }
-                                  else
-                                  {
-                                    return d[x_selection];
-                                  }
-                                });
-      var y_min=d3.min(ew_data, function(d)
-                                {
-                                  //checking for min value in dictionary
-                                  tmp_min = dict[y_selection].min
-                                  if (!isNaN(tmp_min))
-                                  {
-                                    if (d[y_selection]>tmp_min)
-                                    {
-                                      return d[y_selection];
-                                    }
-                                  }
-                                  else
-                                  {
-                                    return d[y_selection];
-                                  }
-                                });
-      var y_max=d3.max(ew_data, function(d)
-                                {
-                                  //checking for min value in dictionary
-                                  tmp_max = dict[y_selection].max
-                                  if (!isNaN(tmp_max))
-                                  {
-                                    if (d[y_selection]<tmp_max)
-                                    {
-                                      return d[y_selection];
-                                    }
-                                  }
-                                  else
-                                  {
-                                    return d[y_selection];
-                                  }
-                                });
-
-      xScale=d3.scaleLinear()
-               .domain([x_min,
-                        x_max])
-               .range([0,scatter_w]);
-
-      yScale=d3.scaleLinear()
-               .domain([y_min,
-                        y_max])
-               .range([scatter_h,0]);
-      //END OF scales
-      // SCATTER AXES, LABELS AND TITLE
-
-      var xAxis = d3.axisBottom()
-             .scale(xScale)
-             .ticks();
-
-      //Define Y axis
-      var yAxis = d3.axisLeft()
-             .scale(yScale)
-             .ticks();
-
-      var xaxis_g = scatter_svg.append("g")
-        .attr("class", "axis xaxis")
-        .attr("transform", "translate(0," + scatter_h + ")");
-
-      xaxis_g.call(xAxis);
-
-      var yaxis_g = scatter_svg.append("g")
-        .attr("class", "axis yaxis");
-
-      yaxis_g.call(yAxis);
-
-      //LABELS
-      var xlabel = scatter_svg.append("g")
-                              .attr("class","label xlabel")
-                              .append("text")
-                              .attr("x",scatter_w/2)
-                              .attr("y",(scatter_h+35))
-                              .attr("text-anchor","middle")
-                              .text(dict[x_selection].name)
-
-      var ylabel = scatter_svg.append("g")
-                              .attr("class","label ylabel")
-                              .append("text")
-                              .attr("x",-scatter_h/2)
-                              .attr("y",-60)
-                              .attr("transform", "rotate(-90)")
-                              .attr("text-anchor", "middle")
-                              .text(dict[y_selection].name)
-
-
-      var scatter_title_string = dict[x_selection].name+" as a function of "+dict[y_selection].name;
-      var title_length = scatter_title_string.length;
-      var title_size = "16px";
-      var scatter_title = scatter_svg.append("g")
-                                     .attr("class","scatter_title")
-                                     .append("text")
-                                     .attr("x",scatter_w/2)
-                                     .attr("y",-20)
-                                     .attr("text-anchor", "middle")
-                                     .attr("font-size",title_size)
-                                     .text(scatter_title_string)
-      // END OF SCATTER AXES, LABELS AND TITLE
-
-      map_update = function map_update_func(data)
+      d3.csv("/data/energy_water_2016_filtered.csv",rowConverter,function(data)
       {
-        //ENTER
+
+        ew_data_full=data;
+        ew_data=data;
+
+        var map_dots=map_svg.append("g").attr("clip-path","url(#map_clip)");
+
         map_dots.selectAll("circle")
-               .data(data)
+               .data(ew_data)
                .enter()
                .append("circle")
                .attr("class", function(d)
@@ -610,146 +339,228 @@
                 })
                .attr("r", map_dot_size)
                .attr("opacity",0.5);
-         //EXIT
-         map_dots.selectAll("circle")
-                 .data(data)
-                 .exit()
-                 .remove();
-        //UPDATE
-        map_dots.selectAll("circle").data(data)
-                         .attr("cx", function(d,i)
-                         {
-                           var tmp=projection([d.lon,d.lat])
-                           return tmp[0];
-                         })
-                        .attr("cy", function(d,i)
-                         {
-                           var tmp=projection([d.lon,d.lat])
-                           return tmp[1];
-                         })
 
-        if (zoomed)
+        d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
+
+        //Defining crosshair
+        var crosshair_g = map_svg.append("g").attr("class","crosshair").attr("clip-path","url(#map_clip)")
+        var chx_pos = [[-80, 40.75], [-72,40.75]];
+        default_proj_x_x = projection(chx_pos[0]);
+        default_proj_x_y = projection(chx_pos[1]);
+        crosshair_g.append("line")
+               .attr("class", "h_crosshair")
+               .attr("x1",default_proj_x_x[0])
+               .attr("x2",default_proj_x_y[0])
+               .attr("y1",default_proj_x_x[1])
+               .attr("y2",default_proj_x_y[1])
+        var chy_pos = [[-74, 42], [-74,39]];
+        default_proj_y_x = projection(chy_pos[0]);
+        default_proj_y_y = projection(chy_pos[1]);
+        crosshair_g.append("line")
+               .attr("class", "v_crosshair")
+               .attr("x1",default_proj_y_x[0])
+               .attr("x2",default_proj_y_y[0])
+               .attr("y1",default_proj_y_x[1])
+               .attr("y2",default_proj_y_y[1])
+
+        ///////////////////////////////SCATTER PLOT//////////////////////////////
+
+        /////////////////////////////DROPDOWN MENU///////////////////////////////
+        //dictionary for nicer variable names, min and max values, filtered values and type distinction
+        dict =
         {
-          d3.selectAll(".map_dot").classed("map_dot_zoomed", true);
+          year_built: {name: "Year built", min: NaN, max: NaN, filter: null, type: "year"},
+          gfa: {name: "Gross Floor Area [ft\u00B2] (acc. to Department of Finance)", min: 50000, max: NaN, filter: null, type: null},
+          property_GFA: {name: "Gross Floor Area [ft\u00B2]", min: 50000, max: NaN, filter: null, type: null},
+          es_score: {name: "Energy Star Score [1-100]", min: NaN, max: NaN, filter: null, type: null},
+          tot_ghg: {name: "Total GHG Emissions [metric tons CO\u00B2e/year]", min: NaN, max: NaN, filter: null, type: null},
+          num_buildings: {name: "Number of buildings on property", min: NaN, max: 35, filter: null, type: null},
+          water_use: {name: "Water use [kgal/year]", min: NaN, max: 1000000, filter: null, type: null},
+          water_intensity: {name: "Water Intensity [gal/ft\u00B2]", min: 1, max: 20000, filter: null, type: null},
+          lon: {name: "Longitude [°]", min: NaN, max: NaN, filter: null, type: null},
+          lat: {name: "Latitude [°]", min: NaN, max: NaN, filter: null, type: null},
+          site_eui: {name: "Site EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: null},
+          source_eui: {name: "Source EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: null},
+          wn_site_eui: {name: "Weather Norm. site EUI [kBTU/ft\u00B2]", min: NaN, max: 10000, filter: null, type: null},
+          wn_source_eui: {name: "Weather Norm. source EUI [kBTU/ft\u00B2]", min: NaN, max: 10000, filter: null, type: null},
+          wn_site_electricity_intensity: {name: "Weather normalized site electricity intensity [kWh/ft\u00B2]", min: NaN, max: 150, filter: null, type: null},
+          electricity_use_grid_purchase: {name: "Electricity use, grid purchase [kBTU/year]", min: NaN, max: NaN, filter: null, type: null},
+          wn_site_electricity: {name: "Weather Norm. Electricity [MWh/year]", min: NaN, max: 100000, filter: null, type: null},
+          boro: {name: "NYC Borough", min: NaN, max: NaN, filter: null, type: null},
+          property_name: {name: "Property Name", min: NaN, max: NaN, filter: null, type: null},
+          address_1: {name: "Address 1", min: NaN, max: NaN, filter: null, type: null},
+          street_name: {name: "Street name", min: NaN, max: NaN, filter: null, type: null},
+          street_number: {name: "Street number", min: NaN, max: NaN, filter: null, type: null},
+          primary_prop_type: {name: "Property Type", min: NaN, max: NaN, filter: null, type: null},
+          order: {name: "Order", min: NaN, max: NaN, filter: null, type: null}
         }
-        else
+
+        //Populating dropdown menu with possible variables
+        var variables=Object.keys(ew_data_full[0]);
+
+        dropdown_menu_x=d3.selectAll(".dropdown-content")._groups[0][0];
+        dropdown_menu_y=d3.selectAll(".dropdown-content")._groups[0][1];
+
+        for (var i=0;i<variables.length-7;i++) //loop length modified to stop before boro for now
         {
-          d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
+          tmp_drop_element = document.createElement("a");
+          var tmp_drop_text = document.createTextNode(dict[variables[i]].name);
+
+          tmp_drop_element.appendChild(tmp_drop_text); //for x-axis
+          tmp_drop_element.className = "drop dropx "+variables[i];
+          tmp_drop_element_cln=tmp_drop_element.cloneNode(true); //clone for y-axis
+          tmp_drop_element_cln.className = "drop dropy "+variables[i];
+
+          dropdown_menu_x.appendChild(tmp_drop_element);
+          dropdown_menu_y.appendChild(tmp_drop_element_cln);
         }
-        d3.selectAll(".map_dot")
-          .on("mouseover", map_hover);
-        d3.selectAll(".map_dot")
-          .on("mouseout", map_hover_over);
-      }
 
+        //Default selection for X- and Y-axis
+        x_selection="year_built";
+        document.getElementsByClassName("dropx year_built")[0].classList.toggle("drop_selected");
+        y_selection="lat";
+        document.getElementsByClassName("dropy lat")[0].classList.toggle("drop_selected");
 
-      //Defining Brush group before scatter_dots
-      var brush_g = scatter_svg.append("g")
-
-      //Drawing scatter-plot
-      var scatter_dots=scatter_svg.append("g").attr("clip-path","url(#scatter_clip)"); //reference clip path here
-      scatter_dots.selectAll("circle")
-                  .data(ew_data)
-                  .enter()
-                  .append("circle")
-                  .attr("class", function(d)
-                       {
-                         return "scatter_dot "+d.order;
-                       })
-                  .attr("cx",function(d)
+        //Dropdown selection function
+        window.onclick = function(d) {
+          if (d.target.matches('.animation_btn'))
+            {
+              var brush_pos = 265;
+              var brush_range = [[255, 0], [brush_pos, scatter_h]];
+              var id = setInterval(frame, 1000);
+              function frame()
+                {
+                  if (brush_pos == scatter_w)
                     {
-                      if (isNaN(d[x_selection]))
-                        {
-                          return xScale(NaN);
-                        }
-                        else
-                        {
-                          return xScale(d[x_selection]);
-                        }
-                    })
-                  .attr("cy",function(d,i)
-                    { if (isNaN(d[y_selection]))
-                      {
-                        return yScale(NaN);
-                      }
-                      else
-                      {
-                        return yScale(d[y_selection]);
-                      }
-                    })
-                  .attr("r",scatter_dot_size)
-                  .attr("opacity", 0.75)
-                  .append("title");
+                      clearInterval(id);
+                    }
+                  else
+                    {
+                      brush_pos += 4;
+                      brush_range = [[265, 0], [brush_pos, scatter_h]];
+                      brush_g.call(brush.move, brush_range);
+                    }
+                }
+            }
+          if (!d.target.matches('.scatter_dot')&&!d.target.matches('.map_dot'))
+          {
+            //Defaulting the info_box text
+            for (var i=0;i<default_text.length;i++)
+            {
+              d3.select(".line"+i).text(default_text[i])
+            }
+            //Hiding cross-hair
+            if (!d.target.matches('.boro_path'))
+            {
+              crosshair_g.select(".h_crosshair").classed("visible", false)
+              crosshair_g.select(".v_crosshair").classed("visible", false)
+            }
+          }
+          if (d.target.matches('.drop')) {
+            drop_selection = d.target.classList[2];
+            //Selecting variables and calling scatter_update based on if it's x or y axis
+            if (d.target.classList.contains("dropx"))
+            {
+              x_selection=drop_selection;
+            }
+            else
+            {
+              y_selection=drop_selection;
+            }
+            //Calling the update
+            scatter_update(x_selection, y_selection);
 
-      //FUNCTION for DYNAMIC SCATTER PLOT UPDATE and MAP_UPDATE
-      scatter_update = function scatter_update_func(x_var,y_var)
-      {
-        //Updating SCALES
-        ew_data = ew_data_full;
-        x_min=d3.min(ew_data, function(d)
+            debug = d.target;
+
+            //Styling the selected menu item
+            if (d.target.classList.contains("dropx"))
+            {
+              if (typeof document.getElementsByClassName("dropx drop_selected")[0] !== 'undefined')
+              {
+                document.getElementsByClassName("dropx drop_selected")[0].classList.toggle("drop_selected");
+              }
+              d.target.classList.toggle("drop_selected");
+            }
+            else
+            {
+              if (typeof document.getElementsByClassName("dropy drop_selected")[0] !== 'undefined')
+              {
+                document.getElementsByClassName("dropy drop_selected")[0].classList.toggle("drop_selected");
+              }
+              d.target.classList.toggle("drop_selected");
+            }
+          }
+        }
+
+        ////////////////////////END OF DROPDOWN MENU/////////////////////////////
+
+        //SCALES - creating new variables
+
+        var x_min=d3.min(ew_data, function(d)
                                   {
                                     //checking for min value in dictionary
-                                    tmp_min = dict[x_var].min
+                                    tmp_min = dict[x_selection].min
                                     if (!isNaN(tmp_min))
                                     {
-                                      if (d[x_var]>tmp_min)
+                                      if (d[x_selection]>tmp_min)
                                       {
-                                        return d[x_var];
+                                        return d[x_selection];
                                       }
                                     }
                                     else
                                     {
-                                      return d[x_var];
+                                      return d[x_selection];
                                     }
                                   });
-        x_max=d3.max(ew_data, function(d)
+        var x_max=d3.max(ew_data, function(d)
                                   {
                                     //checking for max value in dictionary
-                                    tmp_max = dict[x_var].max
+                                    tmp_max = dict[x_selection].max
                                     if (!isNaN(tmp_max))
                                     {
-                                      if (d[x_var]<tmp_max)
+                                      if (d[x_selection]<tmp_max)
                                       {
-                                        return d[x_var];
+                                        return d[x_selection];
                                       }
                                     }
                                     else
                                     {
-                                      return d[x_var];
+                                      return d[x_selection];
                                     }
                                   });
-        y_min=d3.min(ew_data, function(d)
+        var y_min=d3.min(ew_data, function(d)
                                   {
                                     //checking for min value in dictionary
-                                    tmp_min = dict[y_var].min
+                                    tmp_min = dict[y_selection].min
                                     if (!isNaN(tmp_min))
                                     {
-                                      if (d[y_var]>tmp_min)
+                                      if (d[y_selection]>tmp_min)
                                       {
-                                        return d[y_var];
+                                        return d[y_selection];
                                       }
                                     }
                                     else
                                     {
-                                      return d[y_var];
+                                      return d[y_selection];
                                     }
                                   });
-        y_max=d3.max(ew_data, function(d)
+        var y_max=d3.max(ew_data, function(d)
                                   {
                                     //checking for min value in dictionary
-                                    tmp_max = dict[y_var].max
+                                    tmp_max = dict[y_selection].max
                                     if (!isNaN(tmp_max))
                                     {
-                                      if (d[y_var]<tmp_max)
+                                      if (d[y_selection]<tmp_max)
                                       {
-                                        return d[y_var];
+                                        return d[y_selection];
                                       }
                                     }
                                     else
                                     {
-                                      return d[y_var];
+                                      return d[y_selection];
                                     }
                                   });
+
         xScale=d3.scaleLinear()
                  .domain([x_min,
                           x_max])
@@ -759,9 +570,122 @@
                  .domain([y_min,
                           y_max])
                  .range([scatter_h,0]);
+        //END OF scales
+        // SCATTER AXES, LABELS AND TITLE
+
+        var xAxis = d3.axisBottom()
+               .scale(xScale)
+               .ticks();
+
+        //Define Y axis
+        var yAxis = d3.axisLeft()
+               .scale(yScale)
+               .ticks();
+
+        var xaxis_g = scatter_svg.append("g")
+          .attr("class", "axis xaxis")
+          .attr("transform", "translate(0," + scatter_h + ")");
+
+        xaxis_g.call(xAxis);
+
+        var yaxis_g = scatter_svg.append("g")
+          .attr("class", "axis yaxis");
+
+        yaxis_g.call(yAxis);
+
+        //LABELS
+        var xlabel = scatter_svg.append("g")
+                                .attr("class","label xlabel")
+                                .append("text")
+                                .attr("x",scatter_w/2)
+                                .attr("y",(scatter_h+35))
+                                .attr("text-anchor","middle")
+                                .text(dict[x_selection].name)
+
+        var ylabel = scatter_svg.append("g")
+                                .attr("class","label ylabel")
+                                .append("text")
+                                .attr("x",-scatter_h/2)
+                                .attr("y",-60)
+                                .attr("transform", "rotate(-90)")
+                                .attr("text-anchor", "middle")
+                                .text(dict[y_selection].name)
 
 
-        //ENTER
+        var scatter_title_string = dict[x_selection].name+" as a function of "+dict[y_selection].name;
+        var title_length = scatter_title_string.length;
+        var title_size = "16px";
+        var scatter_title = scatter_svg.append("g")
+                                       .attr("class","scatter_title")
+                                       .append("text")
+                                       .attr("x",scatter_w/2)
+                                       .attr("y",-20)
+                                       .attr("text-anchor", "middle")
+                                       .attr("font-size",title_size)
+                                       .text(scatter_title_string)
+        // END OF SCATTER AXES, LABELS AND TITLE
+
+        map_update = function map_update_func(data)
+        {
+          //ENTER
+          map_dots.selectAll("circle")
+                 .data(data)
+                 .enter()
+                 .append("circle")
+                 .attr("class", function(d)
+                      {
+                        return "map_dot "+d.order;
+                      })
+                 .attr("cx", function(d,i)
+                  {
+                    var tmp=projection([d.lon,d.lat])
+                    return tmp[0];
+                  })
+                 .attr("cy", function(d,i)
+                  {
+                    var tmp=projection([d.lon,d.lat])
+                    return tmp[1];
+                  })
+                 .attr("r", map_dot_size)
+                 .attr("opacity",0.5);
+           //EXIT
+           map_dots.selectAll("circle")
+                   .data(data)
+                   .exit()
+                   .remove();
+          //UPDATE
+          map_dots.selectAll("circle").data(data)
+                           .attr("cx", function(d,i)
+                           {
+                             var tmp=projection([d.lon,d.lat])
+                             return tmp[0];
+                           })
+                          .attr("cy", function(d,i)
+                           {
+                             var tmp=projection([d.lon,d.lat])
+                             return tmp[1];
+                           })
+
+          if (zoomed)
+          {
+            d3.selectAll(".map_dot").classed("map_dot_zoomed", true);
+          }
+          else
+          {
+            d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
+          }
+          d3.selectAll(".map_dot")
+            .on("mouseover", map_hover);
+          d3.selectAll(".map_dot")
+            .on("mouseout", map_hover_over);
+        }
+
+
+        //Defining Brush group before scatter_dots
+        var brush_g = scatter_svg.append("g")
+
+        //Drawing scatter-plot
+        var scatter_dots=scatter_svg.append("g").attr("clip-path","url(#scatter_clip)"); //reference clip path here
         scatter_dots.selectAll("circle")
                     .data(ew_data)
                     .enter()
@@ -772,260 +696,307 @@
                          })
                     .attr("cx",function(d)
                       {
-                        if (isNaN(d[x_var]))
+                        if (isNaN(d[x_selection]))
                           {
-                            return xScale(x_min-5000);
+                            return xScale(NaN);
                           }
                           else
                           {
-                            return xScale(d[x_var]);
+                            return xScale(d[x_selection]);
                           }
                       })
                     .attr("cy",function(d,i)
-                      { if (isNaN(d[y_var]))
+                      { if (isNaN(d[y_selection]))
                         {
-                          return yScale(y_min-5000);
+                          return yScale(NaN);
                         }
                         else
                         {
-                          return yScale(d[y_var]);
+                          return yScale(d[y_selection]);
                         }
                       })
                     .attr("r",scatter_dot_size)
                     .attr("opacity", 0.75)
-                    .append("title")
-                    .text(function(d)
-                          {
-                            return x_var+": "+d[x_var]+", "+y_var+": "+d[y_var];
-                          });
-        //EXIT
-        scatter_dots.selectAll("circle")
-                    .data(ew_data)
-                    .exit()
-                    .remove();
+                    .append("title");
 
-        //UPDATE
-        if (ew_data.length<1000)
+        //FUNCTION for DYNAMIC SCATTER PLOT UPDATE and MAP_UPDATE
+        scatter_update = function scatter_update_func(x_var,y_var)
         {
-          var scatter_update_selection = scatter_dots.selectAll("circle")
-                                                      .data(ew_data)
-                                                      .transition()
-                                                      .duration(500);
-        }
-        else
-        {
-          var scatter_update_selection = scatter_dots.selectAll("circle")
-                                                     .data(ew_data);
-        }
-        scatter_update_selection.attr("cx",function(d)
-                      {
-                        if (isNaN(d[x_var]))
+          //Updating SCALES
+          ew_data = ew_data_full;
+          x_min=d3.min(ew_data, function(d)
+                                    {
+                                      //checking for min value in dictionary
+                                      tmp_min = dict[x_var].min
+                                      if (!isNaN(tmp_min))
+                                      {
+                                        if (d[x_var]>tmp_min)
+                                        {
+                                          return d[x_var];
+                                        }
+                                      }
+                                      else
+                                      {
+                                        return d[x_var];
+                                      }
+                                    });
+          x_max=d3.max(ew_data, function(d)
+                                    {
+                                      //checking for max value in dictionary
+                                      tmp_max = dict[x_var].max
+                                      if (!isNaN(tmp_max))
+                                      {
+                                        if (d[x_var]<tmp_max)
+                                        {
+                                          return d[x_var];
+                                        }
+                                      }
+                                      else
+                                      {
+                                        return d[x_var];
+                                      }
+                                    });
+          y_min=d3.min(ew_data, function(d)
+                                    {
+                                      //checking for min value in dictionary
+                                      tmp_min = dict[y_var].min
+                                      if (!isNaN(tmp_min))
+                                      {
+                                        if (d[y_var]>tmp_min)
+                                        {
+                                          return d[y_var];
+                                        }
+                                      }
+                                      else
+                                      {
+                                        return d[y_var];
+                                      }
+                                    });
+          y_max=d3.max(ew_data, function(d)
+                                    {
+                                      //checking for min value in dictionary
+                                      tmp_max = dict[y_var].max
+                                      if (!isNaN(tmp_max))
+                                      {
+                                        if (d[y_var]<tmp_max)
+                                        {
+                                          return d[y_var];
+                                        }
+                                      }
+                                      else
+                                      {
+                                        return d[y_var];
+                                      }
+                                    });
+          xScale=d3.scaleLinear()
+                   .domain([x_min,
+                            x_max])
+                   .range([0,scatter_w]);
+
+          yScale=d3.scaleLinear()
+                   .domain([y_min,
+                            y_max])
+                   .range([scatter_h,0]);
+
+
+          //ENTER
+          scatter_dots.selectAll("circle")
+                      .data(ew_data)
+                      .enter()
+                      .append("circle")
+                      .attr("class", function(d)
+                           {
+                             return "scatter_dot "+d.order;
+                           })
+                      .attr("cx",function(d)
+                        {
+                          if (isNaN(d[x_var]))
+                            {
+                              return xScale(x_min-5000);
+                            }
+                            else
+                            {
+                              return xScale(d[x_var]);
+                            }
+                        })
+                      .attr("cy",function(d,i)
+                        { if (isNaN(d[y_var]))
                           {
-                            return xScale(x_min-5000);
+                            return yScale(y_min-5000);
                           }
                           else
                           {
-                            return xScale(d[x_var]);
+                            return yScale(d[y_var]);
                           }
-                      })
-                    .attr("cy",function(d,i)
-                      { if (isNaN(d[y_var]))
-                        {
-                          return yScale(y_min-5000);
-                        }
-                        else
-                        {
-                          return yScale(d[y_var]);
-                        }
-                      })
-                    .attr("r",scatter_dot_size)
-                    .attr("opacity", 0.75)
-                    .text(function(d)
-                          {
-                            return x_var+": "+d[x_var]+", "+y_var+": "+d[y_var];
-                          });
+                        })
+                      .attr("r",scatter_dot_size)
+                      .attr("opacity", 0.75)
+                      .append("title")
+                      .text(function(d)
+                            {
+                              return x_var+": "+d[x_var]+", "+y_var+": "+d[y_var];
+                            });
+          //EXIT
+          scatter_dots.selectAll("circle")
+                      .data(ew_data)
+                      .exit()
+                      .remove();
 
-
-        //UPDAING SCALES, LABELS AND TITLE
-        xAxis = d3.axisBottom()
-               .scale(xScale)
-               .ticks();
-
-        yAxis = d3.axisLeft()
-               .scale(yScale)
-               .ticks();
-
-        xaxis_g.transition().call(xAxis);
-        yaxis_g.transition().call(yAxis);
-
-        xlabel.text(dict[x_selection].name);
-        ylabel.text(dict[y_selection].name);
-
-        scatter_title_string = dict[x_selection].name+" as a function of "+dict[y_selection].name;
-        title_length = scatter_title_string.length;
-        if (title_length>75)
-        {
-          title_size = "14px";
-        }
-        else
-        {
-          title_size = "16px";
-        }
-
-        scatter_title.attr("font-size", title_size)
-                     .text(scatter_title_string);
-
-        //Calling brushed() to keep the map updated
-        brush_g.call(brush.move, init_range);
-        brushed()
-
-
-      }
-
-      //BRUSH
-      var brush = d3.brush()
-          .extent([[0, 0], [scatter_w, scatter_h]])
-          .on("brush", brushed);
-
-      var init_range = [[20, 100], [scatter_w-20, 150]];
-
-
-      brush_g.attr("class", "brush")
-             .call(brush)
-            .call(brush.move, init_range);
-
-      var s;
-      var s_init;
-
-      function brushed()
-      {
-        if (d3.event==null)
-        {
-          s = s_init;
-        }
-        else
-        {
-          s_init = d3.event.selection;
-          s = s_init;
-        }
-
-        x_brush = [s[0][0], s[1][0]];
-        y_brush = [s[0][1], s[1][1]];
-        x_val = x_brush.map(xScale.invert, xScale);
-        y_val = y_brush.map(yScale.invert, yScale);
-
-        //Get subset of data based on selections
-        //filter based on borough
-        ew_data=ew_data_full.filter(function(d)
-               {
-                 return d[x_selection] > x_val[0] && d[x_selection] < x_val[1] &&
-                        d[y_selection] > y_val[1] && d[y_selection] < y_val[0];
-               })
-        //Call map update function
-        map_update(ew_data)
-      }
-
-      //END OF BRUSH
-
-      //SCATTER MOUSE EVENTS
-      d3.selectAll(".scatter_dot")
-        .on("click", scatter_click);
-
-      var currently_clicked = NaN;
-      var currently_clicked_id = NaN;
-      var map_hover_bool = false;
-
-      function scatter_click(map_hover_bool)
-      {
-        if (map_hover_bool==true)
-        {
-          if (!isNaN(currently_clicked_id))
+          //UPDATE
+          if (ew_data.length<1000)
           {
-            clicked_id=currently_clicked_id;
+            var scatter_update_selection = scatter_dots.selectAll("circle")
+                                                        .data(ew_data)
+                                                        .transition()
+                                                        .duration(500);
           }
           else
           {
-            return;
+            var scatter_update_selection = scatter_dots.selectAll("circle")
+                                                       .data(ew_data);
           }
+          scatter_update_selection.attr("cx",function(d)
+                        {
+                          if (isNaN(d[x_var]))
+                            {
+                              return xScale(x_min-5000);
+                            }
+                            else
+                            {
+                              return xScale(d[x_var]);
+                            }
+                        })
+                      .attr("cy",function(d,i)
+                        { if (isNaN(d[y_var]))
+                          {
+                            return yScale(y_min-5000);
+                          }
+                          else
+                          {
+                            return yScale(d[y_var]);
+                          }
+                        })
+                      .attr("r",scatter_dot_size)
+                      .attr("opacity", 0.75)
+                      .text(function(d)
+                            {
+                              return x_var+": "+d[x_var]+", "+y_var+": "+d[y_var];
+                            });
+
+
+          //UPDAING SCALES, LABELS AND TITLE
+          xAxis = d3.axisBottom()
+                 .scale(xScale)
+                 .ticks();
+
+          yAxis = d3.axisLeft()
+                 .scale(yScale)
+                 .ticks();
+
+          xaxis_g.transition().call(xAxis);
+          yaxis_g.transition().call(yAxis);
+
+          xlabel.text(dict[x_selection].name);
+          ylabel.text(dict[y_selection].name);
+
+          scatter_title_string = dict[x_selection].name+" as a function of "+dict[y_selection].name;
+          title_length = scatter_title_string.length;
+          if (title_length>75)
+          {
+            title_size = "14px";
+          }
+          else
+          {
+            title_size = "16px";
+          }
+
+          scatter_title.attr("font-size", title_size)
+                       .text(scatter_title_string);
+
+          //Calling brushed() to keep the map updated
+          brush_g.call(brush.move, init_range);
+          brushed()
+
+
         }
-        else
+
+        //BRUSH
+        var brush = d3.brush()
+            .extent([[0, 0], [scatter_w, scatter_h]])
+            .on("brush", brushed);
+
+        var init_range = [[20, 100], [scatter_w-20, 150]];
+
+
+        brush_g.attr("class", "brush")
+               .call(brush)
+              .call(brush.move, init_range);
+
+        var s;
+        var s_init;
+
+        function brushed()
         {
-          clicked_id = d3.select(this)._groups[0][0].classList[1] //Get the ID of the data point
+          if (d3.event==null)
+          {
+            s = s_init;
+          }
+          else
+          {
+            s_init = d3.event.selection;
+            s = s_init;
+          }
+
+          x_brush = [s[0][0], s[1][0]];
+          y_brush = [s[0][1], s[1][1]];
+          x_val = x_brush.map(xScale.invert, xScale);
+          y_val = y_brush.map(yScale.invert, yScale);
+
+          //Get subset of data based on selections
+          //filter based on borough
+          ew_data=ew_data_full.filter(function(d)
+                 {
+                   return d[x_selection] > x_val[0] && d[x_selection] < x_val[1] &&
+                          d[y_selection] > y_val[1] && d[y_selection] < y_val[0];
+                 })
+          //Call map update function
+          map_update(ew_data)
+          //Update bursh info text
+          // d3.select(".brush_info_text")
+          //   .text(dict[x_selection].name+": "+parseInt(x_val[0])+" to "+parseInt(x_val[1]))
+          d3.select(".brush_info_text")
+            .text("Buildings built: "+parseInt(x_val[0])+" to "+parseInt(x_val[1]))
+
+
         }
 
-        //Highlight the respective dot on the map as well
-        clicked=ew_data_full.filter(function(d)
-               {
-                 return d.order==clicked_id;
-               })
-        clicked = clicked[0];
+        //END OF BRUSH
 
-        new_text =
-        [
-          dict.property_name.name+":",
-          clicked.property_name,
-          dict.primary_prop_type.name+":",
-          clicked.primary_prop_type,
-          dict.boro.name+": "+clicked.boro,
-          dict[x_selection].name+":",
-          clicked[x_selection],
-          dict[y_selection].name+":",
-          clicked[y_selection],
-          "Address:",
-          clicked.street_name+", "+clicked.street_number
-        ];
-        for (var i=0;i<default_text.length;i++)
+        //SCATTER MOUSE EVENTS
+        d3.selectAll(".scatter_dot")
+          .on("click", scatter_click);
+
+        var currently_clicked = NaN;
+        var currently_clicked_id = NaN;
+        var map_hover_bool = false;
+
+        function scatter_click(map_hover_bool)
         {
-          d3.select(".line"+i).text(new_text[i])
-        }
-
-        //Updating the crosshair for the selected data point on the map
-        chx_pos = [[-80, clicked.lat], [-72,clicked.lat]];
-        default_proj_x_x = projection(chx_pos[0]);
-        default_proj_x_y = projection(chx_pos[1]);
-        crosshair_g.select(".h_crosshair")
-               .classed("visible", true)
-               .transition()
-               .attr("x1",default_proj_x_x[0])
-               .attr("x2",default_proj_x_y[0])
-               .attr("y1",default_proj_x_x[1])
-               .attr("y2",default_proj_x_y[1])
-        chy_pos = [[clicked.lon, 42], [clicked.lon,39]];
-        default_proj_y_x = projection(chy_pos[0]);
-        default_proj_y_y = projection(chy_pos[1]);
-        crosshair_g.select(".v_crosshair")
-               .classed("visible", true)
-               .transition()
-               .attr("x1",default_proj_y_x[0])
-               .attr("x2",default_proj_y_y[0])
-               .attr("y1",default_proj_y_x[1])
-               .attr("y2",default_proj_y_y[1])
-
-
-        currently_clicked_id = clicked_id;
-        currently_clicked = clicked;
-      }
-
-      //END OF SCATTER MOUSE EVENTS
-      //MAP MOUSE EVENTS
-      d3.selectAll(".map_dot")
-        .on("mouseover", map_hover);
-      d3.selectAll(".map_dot")
-        .on("mouseout", map_hover_over);
-
-      function map_hover_over()
-      {
-        if (zoomed)
-        {
-          scatter_click(true)
-        }
-      }
-
-      function map_hover()
-      {
-        if (zoomed)
-        {
-          clicked_id = d3.select(this)._groups[0][0].classList[1] //Get the ID of the data point
+          if (map_hover_bool==true)
+          {
+            if (!isNaN(currently_clicked_id))
+            {
+              clicked_id=currently_clicked_id;
+            }
+            else
+            {
+              return;
+            }
+          }
+          else
+          {
+            clicked_id = d3.select(this)._groups[0][0].classList[1] //Get the ID of the data point
+          }
 
           //Highlight the respective dot on the map as well
           clicked=ew_data_full.filter(function(d)
@@ -1052,189 +1023,271 @@
           {
             d3.select(".line"+i).text(new_text[i])
           }
+
+          //Updating the crosshair for the selected data point on the map
+          chx_pos = [[-80, clicked.lat], [-72,clicked.lat]];
+          default_proj_x_x = projection(chx_pos[0]);
+          default_proj_x_y = projection(chx_pos[1]);
+          crosshair_g.select(".h_crosshair")
+                 .classed("visible", true)
+                 .transition()
+                 .attr("x1",default_proj_x_x[0])
+                 .attr("x2",default_proj_x_y[0])
+                 .attr("y1",default_proj_x_x[1])
+                 .attr("y2",default_proj_x_y[1])
+          chy_pos = [[clicked.lon, 42], [clicked.lon,39]];
+          default_proj_y_x = projection(chy_pos[0]);
+          default_proj_y_y = projection(chy_pos[1]);
+          crosshair_g.select(".v_crosshair")
+                 .classed("visible", true)
+                 .transition()
+                 .attr("x1",default_proj_y_x[0])
+                 .attr("x2",default_proj_y_y[0])
+                 .attr("y1",default_proj_y_x[1])
+                 .attr("y2",default_proj_y_y[1])
+
+
+          currently_clicked_id = clicked_id;
+          currently_clicked = clicked;
         }
-      }
-      //END OF MAP MOUSE EVENTS
-      ///////////////////////////END OF SCATTER PLOT///////////////////////////
 
-      ////////////////////////////////MAP//////////////////////////////////////
-      //Loading GeoJSON file of boroughs
-      d3.json("/data/boroughs.json", function(data)
-      {
-      map_data=data;
-      map.selectAll("path")
-         .data(data.features)
-         .enter()
-         .append("path")
-         .attr("class",function(d,i)
-          {
-            return data.features[i].properties.BoroName + " boro_path";
-          })
-         .attr("d",path);
-
-       /////////////////////////////// ZOOMING ////////////////////////////////
-      //Zoom information for each borough
-       boro_info=
-       {
-          "Manhattan": {center: [-73.975,40.77], scale: 2.2},
-          "Queens": {center: [-73.836889,40.66], scale: 1.7},
-          "Bronx": {center: [-73.856734, 40.848719], scale: 2.5},
-          "Brooklyn": {center: [-73.952215, 40.644117], scale: 2.4},
-          "Staten_Island": {center: [-74.150945,40.583156], scale: 2.2}
-       };
-
-       d3.selectAll('.boro_path,.map_bg')
-         .on('click', zoom);
-
-       var current_boro;
-       var new_boro;
-       var zoom_center;
-       var zoom_scale;
-
-       function zoom()
-       {
-         clicked_boro=d3.select(this)
-         if (clicked_boro._groups[0][0].classList[0]=="test_rect")
-         {
-           //If we are already zoomed out then exit function
-           if(zoomed==false)
-           {
-             return;
-           }
-           //if it's the background, then act like it's the curren_boro and zoom out
-           new_boro=current_boro;
-         }
-         else
-         {
-           //else we check for the selected borough's name
-          new_boro=d3.select(this)._groups[0][0].__data__.properties.BoroName;
-         }
-
-         if (new_boro==current_boro) //If we click on the current boro
-         {
-           //then use the default scale and center to zoom out
-           zoom_center = map_center;
-           zoom_scale = 1;
-           current_boro="no_zoom";
-           zoomed=false;
-         }
-         else
-         {
-            current_boro=new_boro;
-            zoom_center=boro_info[current_boro].center;
-            zoom_scale=boro_info[current_boro].scale;
-            zoomed=true;
-         }
-         projection = d3.geoMercator()
-                        .center(zoom_center)
-                        .scale(map_scale*zoom_scale)
-                        .translate([map_width/2,map_height/2]);
-
-         path = d3.geoPath()
-                  .projection(projection);
-
-         //Filtering DATA based on selected boroughs
-         if (current_boro!="no_zoom")
-         { //filter based on borough
-           var ew_data_zoomed=ew_data.filter(function(d)
-                  {
-                    return d.boro==current_boro;
-                  })
-
-         }
-         else
-         { //else if we zoom out just use the full dataset
-           var ew_data_zoomed = ew_data;
-         }
-
-
-         map.selectAll("path")
-            .data(data.features)
-            .transition()
-            .attr("d",path);
-
-         //Calling map_update
-         map_update(ew_data_zoomed);
-
-        //Zoom styling of boros and updating map title
-          if (zoomed)
-          {
-            map_title.text(current_boro.replace("_"," ")); //updating map title
-            d3.selectAll(".map_dot").classed("map_dot_zoomed", true);
-
-            d3.selectAll(".map_dot").classed("map_dot_not_zoomed", false);
-
-            for (var i=0; i<5; i++)
-            {
-              var tmp_boro=Object.keys(boro_info)[i];
-              var tmp_boro_selection=d3.select("."+tmp_boro);
-              if (!tmp_boro_selection.classed(current_boro))
-              {
-                tmp_boro_selection.classed("zoom_fade",true);
-                tmp_boro_selection.classed("zoom_hl",false);
-
-              }
-              else
-              {
-                tmp_boro_selection.classed("zoom_hl",true);
-                tmp_boro_selection.classed("zoom_fade",false);
-              }
-            }
-          }
-          else
-          {
-            map_title.text("New York City"); //reversing to original title
-            d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
-            d3.selectAll(".map_dot").classed("map_dot_zoomed", false);
-            for (var i=0; i<5; i++)
-            {
-              var tmp_boro=Object.keys(boro_info)[i];
-              var tmp_boro_selection=d3.select("."+tmp_boro);
-              tmp_boro_selection.classed("zoom_fade",false);
-              tmp_boro_selection.classed("zoom_hl",false);
-            }
-          }
-
-          //Updating cross-hair
-          if (!isNaN(currently_clicked.lat))
-          {
-            chx_pos = [[-80, currently_clicked.lat], [-72,currently_clicked.lat]];
-            default_proj_x_x = projection(chx_pos[0]);
-            default_proj_x_y = projection(chx_pos[1]);
-            crosshair_g.select(".h_crosshair")
-                   .classed("visible", true)
-                   .transition()
-                   .attr("x1",default_proj_x_x[0])
-                   .attr("x2",default_proj_x_y[0])
-                   .attr("y1",default_proj_x_x[1])
-                   .attr("y2",default_proj_x_y[1])
-            chy_pos = [[currently_clicked.lon, 42], [currently_clicked.lon,39]];
-            default_proj_y_x = projection(chy_pos[0]);
-            default_proj_y_y = projection(chy_pos[1]);
-            crosshair_g.select(".v_crosshair")
-                   .classed("visible", true)
-                   .transition()
-                   .attr("x1",default_proj_y_x[0])
-                   .attr("x2",default_proj_y_y[0])
-                   .attr("y1",default_proj_y_x[1])
-                   .attr("y2",default_proj_y_y[1])
-          }
-
-
-
+        //END OF SCATTER MOUSE EVENTS
+        //MAP MOUSE EVENTS
         d3.selectAll(".map_dot")
           .on("mouseover", map_hover);
         d3.selectAll(".map_dot")
           .on("mouseout", map_hover_over);
-        }//end of zoom
+
+        function map_hover_over()
+        {
+          if (zoomed)
+          {
+            scatter_click(true)
+          }
+        }
+
+        function map_hover()
+        {
+          if (zoomed)
+          {
+            clicked_id = d3.select(this)._groups[0][0].classList[1] //Get the ID of the data point
+
+            //Highlight the respective dot on the map as well
+            clicked=ew_data_full.filter(function(d)
+                   {
+                     return d.order==clicked_id;
+                   })
+            clicked = clicked[0];
+
+            new_text =
+            [
+              dict.property_name.name+":",
+              clicked.property_name,
+              dict.primary_prop_type.name+":",
+              clicked.primary_prop_type,
+              dict.boro.name+": "+clicked.boro,
+              dict[x_selection].name+":",
+              clicked[x_selection],
+              dict[y_selection].name+":",
+              clicked[y_selection],
+              "Address:",
+              clicked.street_name+", "+clicked.street_number
+            ];
+            for (var i=0;i<default_text.length;i++)
+            {
+              d3.select(".line"+i).text(new_text[i])
+            }
+          }
+        }
+        //END OF MAP MOUSE EVENTS
+        ///////////////////////////END OF SCATTER PLOT///////////////////////////
+
+        ////////////////////////////////MAP//////////////////////////////////////
+        //Loading GeoJSON file of boroughs
+        d3.json("/data/boroughs.json", function(data)
+        {
+        map_data=data;
+        map.selectAll("path")
+           .data(data.features)
+           .enter()
+           .append("path")
+           .attr("class",function(d,i)
+            {
+              return data.features[i].properties.BoroName + " boro_path";
+            })
+           .attr("d",path);
+
+         /////////////////////////////// ZOOMING ////////////////////////////////
+        //Zoom information for each borough
+         boro_info=
+         {
+            "Manhattan": {center: [-73.975,40.77], scale: 2.2},
+            "Queens": {center: [-73.836889,40.66], scale: 1.7},
+            "Bronx": {center: [-73.856734, 40.848719], scale: 2.5},
+            "Brooklyn": {center: [-73.952215, 40.644117], scale: 2.4},
+            "Staten_Island": {center: [-74.150945,40.583156], scale: 2.2}
+         };
+
+         d3.selectAll('.boro_path,.map_bg')
+           .on('click', zoom);
+
+         var current_boro;
+         var new_boro;
+         var zoom_center;
+         var zoom_scale;
+
+         function zoom()
+         {
+           clicked_boro=d3.select(this)
+           if (clicked_boro._groups[0][0].classList[0]=="test_rect")
+           {
+             //If we are already zoomed out then exit function
+             if(zoomed==false)
+             {
+               return;
+             }
+             //if it's the background, then act like it's the curren_boro and zoom out
+             new_boro=current_boro;
+           }
+           else
+           {
+             //else we check for the selected borough's name
+            new_boro=d3.select(this)._groups[0][0].__data__.properties.BoroName;
+           }
+
+           if (new_boro==current_boro) //If we click on the current boro
+           {
+             //then use the default scale and center to zoom out
+             zoom_center = map_center;
+             zoom_scale = 1;
+             current_boro="no_zoom";
+             zoomed=false;
+           }
+           else
+           {
+              current_boro=new_boro;
+              zoom_center=boro_info[current_boro].center;
+              zoom_scale=boro_info[current_boro].scale;
+              zoomed=true;
+           }
+           projection = d3.geoMercator()
+                          .center(zoom_center)
+                          .scale(map_scale*zoom_scale)
+                          .translate([map_width/2,map_height/2]);
+
+           path = d3.geoPath()
+                    .projection(projection);
+
+           //Filtering DATA based on selected boroughs
+           if (current_boro!="no_zoom")
+           { //filter based on borough
+             var ew_data_zoomed=ew_data.filter(function(d)
+                    {
+                      return d.boro==current_boro;
+                    })
+
+           }
+           else
+           { //else if we zoom out just use the full dataset
+             var ew_data_zoomed = ew_data;
+           }
+
+
+           map.selectAll("path")
+              .data(data.features)
+              .transition()
+              .attr("d",path);
+
+           //Calling map_update
+           map_update(ew_data_zoomed);
+
+          //Zoom styling of boros and updating map title
+            if (zoomed)
+            {
+              map_title.text(current_boro.replace("_"," ")); //updating map title
+              d3.selectAll(".map_dot").classed("map_dot_zoomed", true);
+
+              d3.selectAll(".map_dot").classed("map_dot_not_zoomed", false);
+
+              for (var i=0; i<5; i++)
+              {
+                var tmp_boro=Object.keys(boro_info)[i];
+                var tmp_boro_selection=d3.select("."+tmp_boro);
+                if (!tmp_boro_selection.classed(current_boro))
+                {
+                  tmp_boro_selection.classed("zoom_fade",true);
+                  tmp_boro_selection.classed("zoom_hl",false);
+
+                }
+                else
+                {
+                  tmp_boro_selection.classed("zoom_hl",true);
+                  tmp_boro_selection.classed("zoom_fade",false);
+                }
+              }
+            }
+            else
+            {
+              map_title.text("New York City"); //reversing to original title
+              d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
+              d3.selectAll(".map_dot").classed("map_dot_zoomed", false);
+              for (var i=0; i<5; i++)
+              {
+                var tmp_boro=Object.keys(boro_info)[i];
+                var tmp_boro_selection=d3.select("."+tmp_boro);
+                tmp_boro_selection.classed("zoom_fade",false);
+                tmp_boro_selection.classed("zoom_hl",false);
+              }
+            }
+
+            //Updating cross-hair
+            if (!isNaN(currently_clicked.lat))
+            {
+              chx_pos = [[-80, currently_clicked.lat], [-72,currently_clicked.lat]];
+              default_proj_x_x = projection(chx_pos[0]);
+              default_proj_x_y = projection(chx_pos[1]);
+              crosshair_g.select(".h_crosshair")
+                     .classed("visible", true)
+                     .transition()
+                     .attr("x1",default_proj_x_x[0])
+                     .attr("x2",default_proj_x_y[0])
+                     .attr("y1",default_proj_x_x[1])
+                     .attr("y2",default_proj_x_y[1])
+              chy_pos = [[currently_clicked.lon, 42], [currently_clicked.lon,39]];
+              default_proj_y_x = projection(chy_pos[0]);
+              default_proj_y_y = projection(chy_pos[1]);
+              crosshair_g.select(".v_crosshair")
+                     .classed("visible", true)
+                     .transition()
+                     .attr("x1",default_proj_y_x[0])
+                     .attr("x2",default_proj_y_y[0])
+                     .attr("y1",default_proj_y_x[1])
+                     .attr("y2",default_proj_y_y[1])
+            }
+
+
+
+          d3.selectAll(".map_dot")
+            .on("mouseover", map_hover);
+          d3.selectAll(".map_dot")
+            .on("mouseout", map_hover_over);
+          }//end of zoom
+        })
+        ////////////////////////// END OF ZOOMING ////////////////////////////////
+
+        ///////////////////////////END OF MAP////////////////////////////////////
       })
-      ////////////////////////// END OF ZOOMING ////////////////////////////////
 
-      ///////////////////////////END OF MAP////////////////////////////////////
-    })
-
-    </script>
+      </script>
+    </div>
     </div>
 
+    <div class="story_div">
+      <div>
+        <h1>test gif</h1>
+        <img src="img/buildings_built_1.gif" alt="tasty gif" width="400">
+        <img src="img/buildings_built_1_manhattan_central_park.gif" alt="tasty gif" height="400">
+      </div>
+    </div>
     </body>
 </html>

@@ -10,8 +10,31 @@ body{
   fill: rgb(32,32,32);
   display: table-cell;
   horizontal-align: middle;
-  max-width: 700px;
+  /* max-width: 1100px; */
 }
+body.navbar_header{
+  max-width: 2000px;
+}
+h1{
+  text-align: center;
+  font-family: Arial;
+  color: rgb(200,200,200);
+  font-weight: bold;
+}
+
+.story_div{
+    width:100%;
+    border:3px solid;
+    border-color: rgb(253, 188, 63);
+    display: table;
+    margin: auto;
+}
+.vis_div{
+  width:100%;
+  display: table;
+  margin: auto;
+}
+
 .border_rect{
   stroke: rgb(253, 188, 63);
   stroke-width: 5px;
@@ -81,6 +104,16 @@ text.line9 {
   font-size: 15px;
   font-weight: bold;
 }
+
+/* BRUSH INFO */
+.brush_info text{
+  opacity: 1;
+  text-anchor: middle;
+  font-family: Arial;
+  font-size: 18px;
+  fill: rgb(200,200,200);
+  font-weight: normal;
+}
 /*STYLE 1*/
 .boro_path{
   fill: rgb(32, 41, 58);
@@ -136,13 +169,13 @@ text.line9 {
 }
 
 .navbar a, .dropdown, .dropbtn{
-  font-size: 13px;
+  font-size: 15px;
   color: rgb(200,200,200);
 }
 
 .navbar a {
     float: left;
-    text-align: center;
+    text-align: left;
     padding: 14px 16px;
     text-decoration: none;
 }
