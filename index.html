@@ -56,7 +56,7 @@
     //Getting client resolution
     var client_res=[window.screen.width, window.screen.height];
     console.log("client res: "+client_res);
-    var svg_to_screen_ratio=0.6;
+    var svg_to_screen_ratio=0.75;
     var map_to_screen_ratio=0.42;
     var scatter_to_screen_ratio=0.45;
     var map_dot_size = 10e-4*client_res[1];
@@ -65,8 +65,8 @@
     /////////////////////////// Initialize SVG /////////////////////////////////
     //NEW
     var svg_width=client_res[1]*svg_to_screen_ratio;
-    var svg_height=svg_width*1.4;
-    var margin = {top: 0, right: 20, bottom: 20, left: 20};
+    var svg_height=svg_width*1.05;
+    var margin = {top: 5, right: 10, bottom: 10, left: 10};
     var svg_w = svg_width - margin.left - margin.right;
     var svg_h = svg_height - margin.top - margin.bottom;
 
@@ -94,13 +94,13 @@
     //END OF NEW
     ////////////////////// Initialize Scatter Plot /////////////////////////////
     var scatter_width=svg_w;
-    var scatter_height=scatter_width*0.7;
-    var scatter_margin = {top: 50, right: 70, bottom: 40, left: 70};
+    var scatter_height=scatter_width*0.5;
+    var scatter_margin = {top: 50, right: 10, bottom: 40, left: 90};
     var scatter_w = scatter_width - scatter_margin.left - scatter_margin.right;
     var scatter_h = scatter_height - scatter_margin.top - scatter_margin.bottom;
 
     var scatter_svg = svg.append("g")
-                        .attr("transform", "translate("+scatter_margin.left+","+scatter_margin.top+")");
+                        .attr("transform", "translate("+scatter_margin.left+","+(scatter_margin.top)+")");
     scatter_svg.append("clipPath")
                .attr("id", "scatter_clip")
                .append("rect")
@@ -115,28 +115,25 @@
        .attr("height", (scatter_height))
        .attr("x", -scatter_margin.left)
        .attr("y", -scatter_margin.top)
-       .attr("stroke", "rgb(200,200,200)")
      scatter_svg.append("rect")
      .attr("class", "scatter_rect_inner")
         .attr("width",(scatter_w))
         .attr("height", (scatter_h))
         .attr("x", 0)
         .attr("y", 0)
-        .attr("stroke", "rgb(200,200,200)")
 
     //////////////////////// Initialize NYC MAP ////////////////////////////////
 
     //Defining margins and svg element for MAP
 
-    //NEW
     var map_width=client_res[1]*map_to_screen_ratio;
     var map_height=map_width;
-    var map_margin = {top: 20, right: 20, bottom: 20, left: 20};
+    var map_margin = {top: 60, right: 10, bottom: 20, left: 20};
     var map_w = map_width - map_margin.left - map_margin.right;
     var map_h = map_height - map_margin.top - map_margin.bottom;
 
     var map_svg = svg.append("g")
-                    .attr("transform", "translate("+(map_margin.left+(svg_w-map_width)/2)+","+
+                    .attr("transform", "translate("+(map_margin.left+(svg_w-map_width))+","+
                       (map_margin.top+scatter_height)+")");
 
     map_svg.append("rect")
@@ -153,16 +150,20 @@
        .attr("width",(map_w))
        .attr("height", (map_h))
        .attr("x", 0)
-       .attr("y", 0)
-       .attr("stroke", "rgb(200,200,200)")
-    //END OF NEW
+       .attr("y", 0);
 
-
-
+    //Creating title
+    var map_title = map_svg.append("g")
+           .attr("class","map_title")
+           .append("text")
+           .attr("x", map_w/2)
+           .attr("y", -15)
+           .attr("text-anchor", "middle")
+           .text("New York City")
 
     //Defining path generator
     var map_scale = map_height*85;
-    var map_center = [-73.95,40.685];
+    var map_center = [-73.95,40.66];
     var projection = d3.geoMercator()
                        .center(map_center)
                        .scale(map_scale)
@@ -181,6 +182,50 @@
        .attr("height",map_h);
 
     var map = map_svg.append("g").attr("clip-path","url(#map_clip)");
+
+    // Initialize info box
+    var info_box = svg.append("g")
+                      .attr("class", "info")
+                      .attr("transform", "translate("+margin.left+","+(map_margin.top+scatter_height)+")")
+    var info_to_map_margin = 10;
+    var info_width = svg_w - map_width - info_to_map_margin - margin.right
+
+    info_box.append("rect")
+            .attr("class", "info_box_border")
+            .attr("x",0)
+            .attr("y",0)
+            .attr("width",info_width)
+            .attr("height", map_h);
+
+    //Creating text lines with some default values
+    info_box.append("text")
+    .classed("info_title", true)
+    .attr("x", info_width/2)
+    .attr("y",-15)
+    .text("Detailed information")
+
+    var default_text =
+    [
+      "",
+      "",
+      "",
+      "Click on data points above",
+      "to display more information",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ];
+    for (var i=0;i<default_text.length;i++)
+    {
+      info_box.append("text")
+      .classed("line"+i,true)
+      .attr("x", info_width/2)
+      .attr("y",(30+i*30))
+      .text(default_text[i])
+    }
 
     ////////////////////////////////////////////////////////////////////////
     /////////////////////////////// LOADING DATA ///////////////////////////
@@ -207,6 +252,8 @@
     var x_val;
     var y_val;
     var map_update;
+    var clicked_id;
+    var brushing_bool=false;
 
     var zoomed=false;
 
@@ -219,19 +266,29 @@
       return  {
               //IF UPDATED-> ALSO UPDATE DROPDOWN DICT
               year_built: parseFloat(d.year_built.replace(",","")),
-              gfa: parseFloat(d.DOF_gross_floor_area),
+              gfa: parseFloat(d.DOF_gross_floor_area.replace(",","")),
+              property_GFA: parseFloat(d.property_GFA.replace(",","")),
               es_score: parseFloat(d.energy_star_score),
               tot_ghg: parseFloat(d.total_GHG_emissions),
               water_use: parseFloat(d.water_use),
-              num_buildings: parseFloat(d.number_of_buildings),
+              water_intensity: parseFloat(d.water_intensity),
+              site_eui: parseFloat(d.site_eui),
+              source_eui: parseFloat(d.source_eui),
               wn_site_eui: parseFloat(d.wn_site_eui),
               wn_source_eui: parseFloat(d.wn_source_eui),
               wn_site_electricity_intensity: parseFloat(d.wn_site_electricity_intensity),
-              electricity_use_grid_purchase: parseFloat(d.electricity_use_grid_purchase),
               wn_site_electricity: parseFloat(d.wn_site_electricity),
+              electricity_use_grid_purchase: parseFloat(d.electricity_use_grid_purchase),
+              num_buildings: parseFloat(d.number_of_buildings),
               lon: parseFloat(d.Longitude),
               lat: parseFloat(d.Latitude),
-              boro: d.borough
+              boro: d.borough,
+              property_name: d.property_name,
+              address_1: d.address_1,
+              street_name: d.street_name,
+              street_number: d.street_number,
+              primary_prop_type: d.primary_prop_type,
+              order: parseFloat(d.Order.replace(",",""))
       }
       };
     }
@@ -248,7 +305,10 @@
              .data(ew_data)
              .enter()
              .append("circle")
-             .attr("class", "map_dot")
+             .attr("class", function(d)
+                  {
+                    return "map_dot "+d.order;
+                  })
              .attr("cx", function(d,i)
               {
                 var tmp=projection([d.lon,d.lat])
@@ -264,26 +324,37 @@
              .attr("r", map_dot_size)
              .attr("opacity",0.5);
 
+      d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
       ///////////////////////////////SCATTER PLOT//////////////////////////////
 
       /////////////////////////////DROPDOWN MENU///////////////////////////////
-      //dictionary for nicer button text
+      //dictionary for nicer variable names, min and max values, filtered values and type distinction
       dict =
       {
-        year_built: "Year built",
-        gfa: "Gross Floor Area [ft\u00B2]",
-        es_score: "Energy Star Score [1-100]",
-        tot_ghg: "Total GHG Emissions [metric tons CO\u00B2e]",
-        num_buildings: "Number of buildings on property",
-        water_use: "Water use [kgal]",
-        lon: "Longitude",
-        lat: "Latitude",
-        wn_site_eui: "Weather Norm. site EUI [kBTU/ft\u00B2]",
-        wn_source_eui: "Weather Norm. source EUI [kBTU/ft\u00B2]",
-        wn_site_electricity_intensity: "Weather normalized site electricity intensity [kWh/ft\u00B2]",
-        electricity_use_grid_purchase: "Electricity use, grid purchase [kBTU]",
-        wn_site_electricity: "Weather Norm. Electricity [kWh]",
-        boro: "NYC Borough"
+        year_built: {name: "Year built", min: NaN, max: NaN, filter: null, type: "year"},
+        gfa: {name: "Gross Floor Area [ft\u00B2] (acc. to Department of Finance)", min: 50000, max: NaN, filter: null, type: null},
+        property_GFA: {name: "Gross Floor Area [ft\u00B2]", min: 50000, max: NaN, filter: null, type: null},
+        es_score: {name: "Energy Star Score [1-100]", min: NaN, max: NaN, filter: null, type: null},
+        tot_ghg: {name: "Total GHG Emissions [metric tons CO\u00B2e]", min: NaN, max: NaN, filter: null, type: null},
+        num_buildings: {name: "Number of buildings on property", min: NaN, max: 35, filter: null, type: null},
+        water_use: {name: "Water use [kgal]", min: NaN, max: 1000000, filter: null, type: null},
+        water_intensity: {name: "Water Intensity [gal/ft\u00B2]", min: 1, max: 20000, filter: null, type: null},
+        lon: {name: "Longitude [°]", min: NaN, max: NaN, filter: null, type: null},
+        lat: {name: "Latitude [°]", min: NaN, max: NaN, filter: null, type: null},
+        site_eui: {name: "Site EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: null},
+        source_eui: {name: "Source EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: null},
+        wn_site_eui: {name: "Weather Norm. site EUI [kBTU/ft\u00B2]", min: NaN, max: 10000, filter: null, type: null},
+        wn_source_eui: {name: "Weather Norm. source EUI [kBTU/ft\u00B2]", min: NaN, max: 10000, filter: null, type: null},
+        wn_site_electricity_intensity: {name: "Weather normalized site electricity intensity [kWh/ft\u00B2]", min: NaN, max: 150, filter: null, type: null},
+        electricity_use_grid_purchase: {name: "Electricity use, grid purchase [kBTU]", min: NaN, max: NaN, filter: null, type: null},
+        wn_site_electricity: {name: "Weather Norm. Electricity [kWh]", min: NaN, max: 60000000, filter: null, type: null},
+        boro: {name: "NYC Borough", min: NaN, max: NaN, filter: null, type: null},
+        property_name: {name: "Property Name", min: NaN, max: NaN, filter: null, type: null},
+        address_1: {name: "Address 1", min: NaN, max: NaN, filter: null, type: null},
+        street_name: {name: "Street name", min: NaN, max: NaN, filter: null, type: null},
+        street_number: {name: "Street number", min: NaN, max: NaN, filter: null, type: null},
+        primary_prop_type: {name: "Property Type", min: NaN, max: NaN, filter: null, type: null},
+        order: {name: "Order", min: NaN, max: NaN, filter: null, type: null}
       }
 
       //Populating dropdown menu with possible variables
@@ -292,10 +363,10 @@
       dropdown_menu_x=d3.selectAll(".dropdown-content")._groups[0][0];
       dropdown_menu_y=d3.selectAll(".dropdown-content")._groups[0][1];
 
-      for (var i=0;i<variables.length-1;i++) //loop length modified to stop before boro for now
+      for (var i=0;i<variables.length-7;i++) //loop length modified to stop before boro for now
       {
         tmp_drop_element = document.createElement("a");
-        var tmp_drop_text = document.createTextNode(dict[variables[i]]);
+        var tmp_drop_text = document.createTextNode(dict[variables[i]].name);
 
         tmp_drop_element.appendChild(tmp_drop_text); //for x-axis
         tmp_drop_element.className = "drop dropx "+variables[i];
@@ -310,11 +381,17 @@
       x_selection="year_built";
       document.getElementsByClassName("dropx year_built")[0].classList.toggle("drop_selected");
       y_selection="lat";
-      document.getElementsByClassName("dropy wn_source_eui")[0].classList.toggle("drop_selected");
+      document.getElementsByClassName("dropy lat")[0].classList.toggle("drop_selected");
 
       //Dropdown selection function
       window.onclick = function(d) {
-
+        if (!d.target.matches('.scatter_dot')&&!d.target.matches('.map_dot'))
+        {
+          for (var i=0;i<default_text.length;i++)
+          {
+            d3.select(".line"+i).text(default_text[i])
+          }
+        }
         if (d.target.matches('.drop')) {
           drop_selection = d.target.classList[2];
           //Selecting variables and calling scatter_update based on if it's x or y axis
@@ -355,27 +432,74 @@
       ////////////////////////END OF DROPDOWN MENU/////////////////////////////
 
       //SCALES - creating new variables
-      var x_min=d3.min(ew_data, function(d) { return d[x_selection]; });
-      var x_max=d3.max(ew_data, function(d)
+
+      var x_min=d3.min(ew_data, function(d)
                                 {
-                                  //FILTERING EUI - later it should be a variable
-                                  if (d[x_selection]<3000)
+                                  //checking for min value in dictionary
+                                  tmp_min = dict[x_selection].min
+                                  if (!isNaN(tmp_min))
+                                  {
+                                    if (d[x_selection]>tmp_min)
+                                    {
+                                      return d[x_selection];
+                                    }
+                                  }
+                                  else
                                   {
                                     return d[x_selection];
                                   }
                                 });
-      var y_min=d3.min(ew_data, function(d) { return d[y_selection]; });
+      var x_max=d3.max(ew_data, function(d)
+                                {
+                                  //checking for max value in dictionary
+                                  tmp_max = dict[x_selection].max
+                                  if (!isNaN(tmp_max))
+                                  {
+                                    if (d[x_selection]<tmp_max)
+                                    {
+                                      return d[x_selection];
+                                    }
+                                  }
+                                  else
+                                  {
+                                    return d[x_selection];
+                                  }
+                                });
+      var y_min=d3.min(ew_data, function(d)
+                                {
+                                  //checking for min value in dictionary
+                                  tmp_min = dict[y_selection].min
+                                  if (!isNaN(tmp_min))
+                                  {
+                                    if (d[y_selection]>tmp_min)
+                                    {
+                                      return d[y_selection];
+                                    }
+                                  }
+                                  else
+                                  {
+                                    return d[y_selection];
+                                  }
+                                });
       var y_max=d3.max(ew_data, function(d)
                                 {
-                                  //FILTERING EUI - later it should be a variable
-                                  if (d[y_selection]<3000)
+                                  //checking for min value in dictionary
+                                  tmp_max = dict[y_selection].max
+                                  if (!isNaN(tmp_max))
+                                  {
+                                    if (d[y_selection]<tmp_max)
+                                    {
+                                      return d[y_selection];
+                                    }
+                                  }
+                                  else
                                   {
                                     return d[y_selection];
                                   }
                                 });
 
       xScale=d3.scaleLinear()
-               .domain([1827,
+               .domain([x_min,
                         x_max])
                .range([0,scatter_w]);
 
@@ -413,19 +537,19 @@
                               .attr("x",scatter_w/2)
                               .attr("y",(scatter_h+35))
                               .attr("text-anchor","middle")
-                              .text(dict[x_selection])
+                              .text(dict[x_selection].name)
 
       var ylabel = scatter_svg.append("g")
                               .attr("class","label ylabel")
                               .append("text")
                               .attr("x",-scatter_h/2)
-                              .attr("y",-50)
+                              .attr("y",-60)
                               .attr("transform", "rotate(-90)")
                               .attr("text-anchor", "middle")
-                              .text(dict[y_selection])
+                              .text(dict[y_selection].name)
 
 
-      var scatter_title_string = dict[x_selection]+" as a function of "+dict[y_selection];
+      var scatter_title_string = dict[x_selection].name+" as a function of "+dict[y_selection].name;
       var title_length = scatter_title_string.length;
       var title_size = "16px";
       var scatter_title = scatter_svg.append("g")
@@ -438,19 +562,70 @@
                                      .text(scatter_title_string)
       // END OF SCATTER AXES, LABELS AND TITLE
 
+      map_update = function map_update_func(data)
+      {
+        //ENTER
+        map_dots.selectAll("circle")
+               .data(data)
+               .enter()
+               .append("circle")
+               .attr("class", function(d)
+                    {
+                      return "map_dot "+d.order;
+                    })
+               .attr("cx", function(d,i)
+                {
+                  var tmp=projection([d.lon,d.lat])
+                  return tmp[0];
+                })
+               .attr("cy", function(d,i)
+                {
+                  var tmp=projection([d.lon,d.lat])
+                  return tmp[1];
+                })
+               .attr("r", map_dot_size)
+               .attr("opacity",0.5);
+         //EXIT
+         map_dots.selectAll("circle")
+                 .data(data)
+                 .exit()
+                 .remove();
+        //UPDATE
+        map_dots.selectAll("circle").data(data)
+                         .attr("cx", function(d,i)
+                         {
+                           var tmp=projection([d.lon,d.lat])
+                           return tmp[0];
+                         })
+                        .attr("cy", function(d,i)
+                         {
+                           var tmp=projection([d.lon,d.lat])
+                           return tmp[1];
+                         })
+
+        d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
+      }
+
+
+      //Defining Brush group before scatter_dots
+      var brush_g = scatter_svg.append("g")
+
       //Drawing scatter-plot
       var scatter_dots=scatter_svg.append("g").attr("clip-path","url(#scatter_clip)"); //reference clip path here
       scatter_dots.selectAll("circle")
                   .data(ew_data)
                   .enter()
                   .append("circle")
-                  .attr("class", "scatter_dot")
+                  .attr("class", function(d)
+                       {
+                         return "scatter_dot "+d.order;
+                       })
                   .attr("cx",function(d)
                     {
                       if (isNaN(d[x_selection]))
                         {
                           //console.log("it's nan")
-                          return xScale(x_min+5000);
+                          return xScale(NaN);
                         }
                         else
                         {
@@ -461,7 +636,7 @@
                     { if (isNaN(d[y_selection]))
                       {
                         //console.log("it's nan")
-                        return yScale(y_min+5000);
+                        return yScale(NaN);
                       }
                       else
                       {
@@ -470,31 +645,73 @@
                     })
                   .attr("r",scatter_dot_size)
                   .attr("opacity", 0.75)
-                  .append("title")
-                  .text(function(d)
-                        {
-                          return x_selection+": "+d[x_selection]+", "+y_selection+": "+d[y_selection];
-                        });
+                  .append("title");
 
       //FUNCTION for DYNAMIC SCATTER PLOT UPDATE and MAP_UPDATE
       scatter_update = function scatter_update_func(x_var,y_var)
       {
         //Updating SCALES
         ew_data = ew_data_full;
-        x_min=d3.min(ew_data, function(d) { return d[x_var]; });
-        x_max=d3.max(ew_data, function(d)
+        x_min=d3.min(ew_data, function(d)
                                   {
-                                    //FILTERING EUI - later it should be a variable
-                                    if (d[x_var]<3000)
+                                    //checking for min value in dictionary
+                                    tmp_min = dict[x_var].min
+                                    if (!isNaN(tmp_min))
+                                    {
+                                      if (d[x_var]>tmp_min)
+                                      {
+                                        return d[x_var];
+                                      }
+                                    }
+                                    else
                                     {
                                       return d[x_var];
                                     }
                                   });
-        y_min=d3.min(ew_data, function(d) { return d[y_var]; });
+        x_max=d3.max(ew_data, function(d)
+                                  {
+                                    //checking for max value in dictionary
+                                    tmp_max = dict[x_var].max
+                                    if (!isNaN(tmp_max))
+                                    {
+                                      if (d[x_var]<tmp_max)
+                                      {
+                                        return d[x_var];
+                                      }
+                                    }
+                                    else
+                                    {
+                                      return d[x_var];
+                                    }
+                                  });
+        y_min=d3.min(ew_data, function(d)
+                                  {
+                                    //checking for min value in dictionary
+                                    tmp_min = dict[y_var].min
+                                    if (!isNaN(tmp_min))
+                                    {
+                                      if (d[y_var]>tmp_min)
+                                      {
+                                        return d[y_var];
+                                      }
+                                    }
+                                    else
+                                    {
+                                      return d[y_var];
+                                    }
+                                  });
         y_max=d3.max(ew_data, function(d)
                                   {
-                                    //FILTERING EUI - later it should be a variable
-                                    if (d[y_var]<3000)
+                                    //checking for min value in dictionary
+                                    tmp_max = dict[y_var].max
+                                    if (!isNaN(tmp_max))
+                                    {
+                                      if (d[y_var]<tmp_max)
+                                      {
+                                        return d[y_var];
+                                      }
+                                    }
+                                    else
                                     {
                                       return d[y_var];
                                     }
@@ -515,13 +732,15 @@
                     .data(ew_data)
                     .enter()
                     .append("circle")
-                    .attr("class", "scatter_dot")
+                    .attr("class", function(d)
+                         {
+                           return "scatter_dot "+d.order;
+                         })
                     .attr("cx",function(d)
                       {
                         if (isNaN(d[x_var]))
                           {
-                            //console.log("it's nan")
-                            return xScale(x_min+5000);
+                            return xScale(x_min-5000);
                           }
                           else
                           {
@@ -531,8 +750,8 @@
                     .attr("cy",function(d,i)
                       { if (isNaN(d[y_var]))
                         {
-                          //console.log("it's nan")
-                          return yScale(y_min+5000);
+                          console.log("it's nan")
+                          return yScale(y_min-5000);
                         }
                         else
                         {
@@ -569,8 +788,7 @@
                       {
                         if (isNaN(d[x_var]))
                           {
-                            //console.log("it's nan")
-                            return xScale(x_min+5000);
+                            return xScale(x_min-5000);
                           }
                           else
                           {
@@ -580,8 +798,7 @@
                     .attr("cy",function(d,i)
                       { if (isNaN(d[y_var]))
                         {
-                          //console.log("it's nan")
-                          return yScale(y_min+5000);
+                          return yScale(y_min-5000);
                         }
                         else
                         {
@@ -608,10 +825,10 @@
         xaxis_g.transition().call(xAxis);
         yaxis_g.transition().call(yAxis);
 
-        xlabel.text(dict[x_selection]);
-        ylabel.text(dict[y_selection]);
+        xlabel.text(dict[x_selection].name);
+        ylabel.text(dict[y_selection].name);
 
-        scatter_title_string = dict[x_selection]+" as a function of "+dict[y_selection];
+        scatter_title_string = dict[x_selection].name+" as a function of "+dict[y_selection].name;
         title_length = scatter_title_string.length;
         if (title_length>75)
         {
@@ -631,55 +848,15 @@
 
 
       }
-      map_update = function map_update_func(data)
-      {
-        //ENTER
-        map_dots.selectAll("circle")
-               .data(data)
-               .enter()
-               .append("circle")
-               .attr("class", "map_dot")
-               .attr("cx", function(d,i)
-                {
-                  var tmp=projection([d.lon,d.lat])
-                  return tmp[0];
-                })
-               .attr("cy", function(d,i)
-                {
-                  var tmp=projection([d.lon,d.lat])
-                  return tmp[1];
-                })
-               .attr("r", map_dot_size)
-               .attr("opacity",0.5);
-         //EXIT
-         map_dots.selectAll("circle")
-                 .data(data)
-                 .exit()
-                 .remove();
-        //UPDATE
-        map_dots.selectAll("circle").data(data)
-                         .attr("cx", function(d,i)
-                         {
-                           var tmp=projection([d.lon,d.lat])
-                           return tmp[0];
-                         })
-                        .attr("cy", function(d,i)
-                         {
-                           var tmp=projection([d.lon,d.lat])
-                           return tmp[1];
-                         })
 
-      }
       //BRUSH
-
-      //Defining brush
       var brush = d3.brush()
           .extent([[0, 0], [scatter_w, scatter_h]])
           .on("brush", brushed);
 
       var init_range = [[20, 100], [scatter_w-20, 150]];
 
-      var brush_g = scatter_svg.append("g")
+
       brush_g.attr("class", "brush")
              .call(brush)
             .call(brush.move, init_range);
@@ -716,6 +893,111 @@
       }
 
       //END OF BRUSH
+
+      //SCATTER MOUSE EVENTS
+      d3.selectAll(".scatter_dot")
+        .on("click", scatter_click);
+
+      var currently_clicked_id = NaN;
+      var map_hover_bool = false;
+      function scatter_click(map_hover_bool)
+      {
+        if (map_hover_bool==true)
+        {
+          if (!isNaN(currently_clicked_id))
+          {
+            clicked_id=currently_clicked_id;
+          }
+          else
+          {
+            return;
+          }
+        }
+        else
+        {
+          clicked_id = d3.select(this)._groups[0][0].classList[1] //Get the ID of the data point
+        }
+
+
+        //Highlight the respective dot on the map as well
+        clicked=ew_data_full.filter(function(d)
+               {
+                 return d.order==clicked_id;
+               })
+        clicked = clicked[0];
+
+        new_text =
+        [
+          dict.property_name.name+":",
+          clicked.property_name,
+          dict.primary_prop_type.name+":",
+          clicked.primary_prop_type,
+          dict.boro.name+": "+clicked.boro,
+          dict[x_selection].name+":",
+          clicked[x_selection],
+          dict[y_selection].name+":",
+          clicked[y_selection],
+          "Address:",
+          clicked.street_name+", "+clicked.street_number
+        ];
+        for (var i=0;i<default_text.length;i++)
+        {
+          d3.select(".line"+i).text(new_text[i])
+        }
+
+        currently_clicked_id = clicked_id;
+
+      }
+
+      //END OF SCATTER MOUSE EVENTS
+      //MAP MOUSE EVENTS
+      d3.selectAll(".map_dot")
+        .on("mouseover", map_hover);
+      d3.selectAll(".map_dot")
+        .on("mouseout", map_hover_over);
+
+      function map_hover_over()
+      {
+        if (zoomed)
+        {
+          scatter_click(true)
+        }
+      }
+
+      function map_hover()
+      {
+        if (zoomed)
+        {
+          clicked_id = d3.select(this)._groups[0][0].classList[1] //Get the ID of the data point
+
+          //Highlight the respective dot on the map as well
+          clicked=ew_data_full.filter(function(d)
+                 {
+                   return d.order==clicked_id;
+                 })
+          clicked = clicked[0];
+
+          new_text =
+          [
+            dict.property_name.name+":",
+            clicked.property_name,
+            dict.primary_prop_type.name+":",
+            clicked.primary_prop_type,
+            dict.boro.name+": "+clicked.boro,
+            dict[x_selection].name+":",
+            clicked[x_selection],
+            dict[y_selection].name+":",
+            clicked[y_selection],
+            "Address:",
+            clicked.street_name+", "+clicked.street_number
+          ];
+          for (var i=0;i<default_text.length;i++)
+          {
+            d3.select(".line"+i).text(new_text[i])
+          }
+        }
+      }
+      //END OF MAP MOUSE EVENTS
       ///////////////////////////END OF SCATTER PLOT///////////////////////////
 
       ////////////////////////////////MAP//////////////////////////////////////
@@ -737,7 +1019,7 @@
       //Zoom information for each borough
        boro_info=
        {
-          "Manhattan": {center: [-73.975,40.78], scale: 2.5},
+          "Manhattan": {center: [-73.975,40.77], scale: 2.2},
           "Queens": {center: [-73.836889,40.66], scale: 1.7},
           "Bronx": {center: [-73.856734, 40.848719], scale: 2.5},
           "Brooklyn": {center: [-73.952215, 40.644117], scale: 2.4},
@@ -817,9 +1099,13 @@
          //Calling map_update
          map_update(ew_data_zoomed);
 
-        //Zoom styling of boros
+        //Zoom styling of boros and updating map title
           if (zoomed)
           {
+            map_title.text(current_boro.replace("_"," ")); //updating map title
+            d3.selectAll(".map_dot").classed("map_dot_zoomed", true);
+            d3.selectAll(".map_dot").classed("map_dot_not_zoomed", false);
+
             for (var i=0; i<5; i++)
             {
               var tmp_boro=Object.keys(boro_info)[i];
@@ -839,6 +1125,9 @@
           }
           else
           {
+            map_title.text("New York City"); //reversing to original title
+            d3.selectAll(".map_dot").classed("map_dot_not_zoomed", true);
+            d3.selectAll(".map_dot").classed("map_dot_zoomed", false);
             for (var i=0; i<5; i++)
             {
               var tmp_boro=Object.keys(boro_info)[i];

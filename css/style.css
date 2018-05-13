@@ -14,50 +14,79 @@ body{
 }
 .border_rect{
   stroke: rgb(253, 188, 63);
+  stroke-width: 5px;
+}
+.scatter_rect, .test_rect_bg, .border_rect_inner{
+  stroke: rgb(32, 32, 32);
+  stroke-width: 0.5px;
+  fill: none;
+}
+
+.map_bg, .info_box_border, .scatter_rect_inner{
+  stroke: rgb(200,200,200);
+  stroke-width: 0.75px;
 }
 .content{
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.map_dot{
+.map_dot_not_zoomed{
   pointer-events: none;
 }
-
+.map_dot_zoomed:hover{
+    opacity: 1;
+    stroke: rgb(200,200,200);
+    stroke-width: 30px;
+}
+/* INFO BOX */
+.info text{
+  text-anchor: middle;
+  font-family: Arial;
+  font-size: 14px;
+  fill: rgb(200,200,200);
+  font-weight: normal;
+}
+text.info_title{
+  font-size: 16px;
+  font-weight: bold;
+}
+text.line0 {
+  font-size: 15px;
+  font-weight: bold;
+}
+text.line2 {
+  font-size: 15px;
+  font-weight: bold;
+}
+text.line4 {
+  font-size: 15px;
+  font-weight: bold;
+}
+text.line5 {
+  font-size: 15px;
+  font-weight: bold;
+}
+text.line7 {
+  font-size: 15px;
+  font-weight: bold;
+}
+text.line9 {
+  font-size: 15px;
+  font-weight: bold;
+}
 /*STYLE 1*/
 .boro_path{
   fill: rgb(32, 41, 58);
 	stroke: rgb(168,125,42);
-  stroke-width: 0.4px;
+  stroke-width: 0.5px;
 }
 .boro_path:hover{
   stroke-width: 1px;
 }
-.map_dot, .scatter_dot{
+.map_dot{
   fill: rgb(253, 188, 63);
 }
-.scatter_dot{
-  stroke: rgb(32, 41, 58);
-}
-  /*.test_rect_bg{
-    fill: rgb(32, 41, 58);
-  }*/
-  /*STYLE 2*/
-  /*.boro_path{
-    fill: rgb(253, 188, 63);
-    stroke: rgb(32, 41, 58);
-
-  }
-  .map_dot{
-  	fill: rgb(32, 41, 58);
-  }
-  .scatter_dot{
-    fill: rgb(253, 188, 63);
-    stroke: rgb(32, 41, 58);
-  }*/
-  /*.test_rect_bg{
-    fill: rgb(32, 41, 58);
-  }*/
 
 /* SCATTER STYLING */
 .axis text{
@@ -77,10 +106,19 @@ body{
   font-weight: normal;
   font-size: 16px;
 }
-.scatter_title text{
+.scatter_title text, .map_title text{
   font-family: Arial;
   fill: rgb(200,200,200);
-  font-weight: normal;
+  font-weight: bold;
+}
+.scatter_dot{
+  stroke: rgb(32, 41, 58);
+  stroke-width: 1.5px;
+  fill: rgb(253, 188, 63);
+}
+.scatter_dot:hover{
+  stroke: rgb(200,200,200);
+  stroke-width: 3px;
 }
 /* END OF SCATTER STYLING */
 
