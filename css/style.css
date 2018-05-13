@@ -39,6 +39,12 @@ body{
     stroke: rgb(200,200,200);
     stroke-width: 30px;
 }
+.crosshair .visible{
+  stroke: rgb(200,200,200);
+  opacity: 0.5;
+  stroke-width: 0.07em;
+  stroke-dasharray: 3,3;
+}
 /* INFO BOX */
 .info text{
   text-anchor: middle;
