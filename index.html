@@ -19,8 +19,8 @@
     <div class="story_div header">
       <header>
         <h1>Exploring New York through Energy data</h1>
-        <p>From 2009 onwards, according to Local Law 84 (of the city of New York) buildings over 50,000 ft<sup>2</sup> have to be benchmarked based on their yearly energy and water consumption.
-            This data is then gathered and is also made available through NYC’s open-data portal (see the button above for "Data Source").</p>
+        <p>Buildings over 50,000 ft<sup>2</sup> have to be benchmarked based on their yearly energy and water consumption according to Local Law 84 (of the city of New York) from 2009 onwards.
+            This benchmark information for each building is then gathered and is also made available through NYC’s open-data portal (see the button above for "Data Source").</p>
         <p>The dataset contains many types of variables, mostly regarding energy of course. One of the most important units is <b>EUI</b> or Energy Use Intensity which is a nice indicator of efficiency
           as it is normalized for the size of the property, its unit is kBTU/ft<sup></sup> (where BTU stands for british thermal unit and is ≈ 1.05 kJ). </p>
         <p>EUI can be measured on site or at the source. It can also be normalized for the weather:</p>
@@ -520,6 +520,19 @@
               d.target.classList.toggle("drop_selected");
             }
           }
+          if (!d.target.matches('.dropbtn'))
+            {
+              var myDropdown = document.getElementById("x_axis_selector");
+                if (myDropdown.classList.contains('show_x'))
+                  {
+                    myDropdown.classList.remove('show_x');
+                  }
+              var myDropdown = document.getElementById("y_axis_selector");
+                if (myDropdown.classList.contains('show_y'))
+                  {
+                    myDropdown.classList.remove('show_y');
+                  }
+            }
         }
 
         ////////////////////////END OF DROPDOWN MENU/////////////////////////////
@@ -1351,17 +1364,17 @@
     Most of its buildings were built in the early 20<sup>th</sup> century. It would be interesting to see how those old buildings compare to today regarding sustainability and efficiency:</p>
     <figure>
       <img src="img/age_energy_star.png" alt="Age to Energy Star Score" width="800" align="middle">
-      <figcaption>Fig.1 There seems to be no correlation between how old a building is and its energy star score.</figcaption>
+      <figcaption>Fig.1 There seems to be no correlation between the age of a building and its energy star score.</figcaption>
     </figure>
-    <p>Based on the above figure, it doesn't seem to matter how old a building is, they can perform equally to modern ones.
+    <p>Based on the above figure, the age does not seem to matter, old buildings can perform equally to modern ones.
        (The energy star score is a comparison to the distribution of all other properties of the same type. 50 is the median.)
      Even Looking at other measures seem to indicate the same thing (see fig.2)</p>
      <figure>
        <img src="img/age_eui.png" alt="Age to source EUI" width="800" align="middle">
        <figcaption>Fig.2 Energy use efficiency seems to not have improved over time.</figcaption>
      </figure>
-    <p>Of course it is also a valid argument to say that old buildings are kept up-to-date with renovations and newer energy systems being used.</p>
-    <p>Using the map, we can also see clearly the distribution of certain properties, such as the highest electricity users:</p>
+    <p>Of course it is also a valid argument to say that old buildings are maintained with renovations and newer energy systems being used.</p>
+    <p>Using the map, we can also see clearly the distribution of certain properties, such as the highest electricity users, as seen in the GIF below:</p>
      <figure>
        <img src="img/top_energy_users.gif" alt="Top energy users" width="700" align="middle">
        <figcaption>Fig.3 A look at the highest yearly electricity users.</figcaption>
@@ -1373,11 +1386,11 @@
       <figcaption>Fig.4 Clear groups are visible when we look at the floor are of properties against there electricity purchase from the grid.</figcaption>
     </figure>
    <p>There are two main takeaways from the above. First, it is seen that when properties get bigger, they tend to generate electricity on site instead of purchasing it. The second takeaway becomes visible after brushing the groups.
-   The biggest properties are located in Manhattan, which is not hard to imagine considering how many floors some buildings have there.</p>
+   The biggest properties are located in Manhattan, which is not hard to imagine considering the number of floors that some buildings have there.</p>
 
     <p><img class="inline" src="img/buildings_built_1.gif" alt="buildings through time" width="400" align="right">
       The cool thing about the dataset is that it contains enough datapoints to give some historical perspective.
-      For example just brushing through the buildings built over time, we can get a view of the spread of the city over time.
+      For example just brushing through the buildings built over time, we can get a view of how the city spreads over time.
       <br></br>
       The gif on the right shows the development of Brooklyn and the Bronx especially, while Staten Island seems to be home to less properties. (Note: Not a lot of properties seem to be present in the dataset from Queens)
       <br></br>
