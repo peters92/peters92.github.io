@@ -38,7 +38,7 @@
       <div class="content">
         <!--Menu-->
         <div class="navbar">
-          <a class="animation_btn" href="#home">Animate</a>
+          <!-- <a class="animation_btn" href="#home">Animate</a> -->
           <div class="dropdown">
             <button class="dropbtn" onclick="xaxis_func()">Select X-axis
               <i class="fa fa-caret-down"></i>
@@ -448,8 +448,8 @@
         //Default selection for X- and Y-axis
         x_selection="year_built";
         document.getElementsByClassName("dropx year_built")[0].classList.toggle("drop_selected");
-        y_selection="lat";
-        document.getElementsByClassName("dropy lat")[0].classList.toggle("drop_selected");
+        y_selection="property_GFA";
+        document.getElementsByClassName("dropy property_GFA")[0].classList.toggle("drop_selected");
 
         //Dropdown selection function
         window.onclick = function(d) {
@@ -955,7 +955,7 @@
             .extent([[0, 0], [scatter_w, scatter_h]])
             .on("brush", brushed);
 
-        var init_range = [[20, 100], [scatter_w-20, 150]];
+        var init_range = [[200, 50], [scatter_w-20, 150]];
 
 
         brush_g.attr("class", "brush")
@@ -1344,7 +1344,7 @@
     </div>
     </div>
 
-<div class="story_div">
+<div class="story_div story">
   <div>
     <h1>Findings</h1>
     <p>There are many aspects of the data that can be looked at independently, here some of these will be detailed. Even though it seems very modern with its skyscrapers and sprawling concrete-jungle, New York is relatively old city.
@@ -1366,13 +1366,29 @@
        <img src="img/top_energy_users.gif" alt="Top energy users" width="700" align="middle">
        <figcaption>Fig.3 A look at the highest yearly electricity users.</figcaption>
      </figure>
-    <p>Perhaps not surprisingly, we can cleary pick out some well known areas as the culprits. The buildings around Times Square and the tip of Lower Manhattan probably have quite the electricity bill.</p>
+    <p>Perhaps not surprisingly, we can cleary pick out some well known areas as the culprits. The buildings around Times Square and the tip of Lower Manhattan probably have quite the electricity bill.
+      It is also interesting to look at grid purchase of electricity, as it seems to clearly cluster NYC into two main group: </p>
+    <figure>
+      <img src="img/gfa_grid_purch.gif" alt="GFA grid purchase" width="700" align="middle">
+      <figcaption>Fig.4 Clear groups are visible when we look at the floor are of properties against there electricity purchase from the grid.</figcaption>
+    </figure>
+   <p>There are two main takeaways from the above. First, it is seen that when properties get bigger, they tend to generate electricity on site instead of purchasing it. The second takeaway becomes visible after brushing the groups.
+   The biggest properties are located in Manhattan, which is not hard to imagine considering how many floors some buildings have there.</p>
 
-    <p></p>
-    <p></p>
+    <p><img class="inline" src="img/buildings_built_1.gif" alt="buildings through time" width="400" align="right">
+      The cool thing about the dataset is that it contains enough datapoints to give some historical perspective.
+      For example just brushing through the buildings built over time, we can get a view of the spread of the city over time.
+      <br></br>
+      The gif on the right shows the development of Brooklyn and the Bronx especially, while Staten Island seems to be home to less properties. (Note: Not a lot of properties seem to be present in the dataset from Queens)
+      <br></br>
+      <br></br>
+      </p>
+    <p><img class="inline" src="img/buildings_built_1_manhattan_central_park.gif" alt="Manhattan over the years" width="200" align="left">
+      <br></br>
+      <br></br>
+      Looking closer, we can pick out a lot of details in the structure of e.g Manhattan. The grid layout of the city blocks as well as Central Park are cleary distinguishable.
+      </p>
 
-    <img src="img/buildings_built_1.gif" alt="tasty gif" width="400">
-    <img src="img/buildings_built_1_manhattan_central_park.gif" alt="tasty gif" height="400">
   </div>
 </div>
     </body>

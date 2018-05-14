@@ -19,17 +19,119 @@
       <header>
         <h1>Social Data Analysis and Visualization</h1>
         <h1>Final Project</h1>
-        <p>From 2009 onwards, according to Local Law 84 (of the city of New York) buildings over 50,000 ft<sup>2</sup> have to be benchmarked based on their yearly energy and water consumption.
-            This data is then gathered and is also made available through NYC’s open-data portal.</p>
       </header>
-    </div>
 
-    <div class="story_div">
-      <div>
-        <h1>test gif</h1>
-        <img src="img/buildings_built_1.gif" alt="tasty gif" width="400">
-        <img src="img/buildings_built_1_manhattan_central_park.gif" alt="tasty gif" height="400">
-      </div>
+<h2>1. Motivation</h2>
+  <h3>What is your dataset?</h3>
+  <p>My dataset is the "Energy and Water Data Disclosure for Local Law 84 (2016)" for the city of New York.
+    <a href="https://data.cityofnewyork.us/Environment/Energy-and-Water-Data-Disclosure-for-Local-Law-84-/8u86-bviy" target="_blank">link</a>  </p>
+
+  <h3>Why did you choose this/these particular dataset(s)</h3>
+  <p>I chose this dataset because it has a significant number of datapoint (11k before and around 9k points after cleaning), and also a huge amount of variables regarding energy and water use.
+   It was also interesting from a sustainability point of view.</p>
+
+  <h3>What was your goal for the end user's experience</h3>
+  <p>My end goal was to come up with a page that can offer insight through an annotated guide of the data as well as the user's own exploration through a flexible visualization.</p>
+
+<h2>2. Basic Stats</h2>
+  <h3>Write about your choices in data cleaning and preprocessing</h3>
+  <p>The data contained some very sparse variables (such as fuel oil use or steam use) which had so many missing data, that it was not useful for the end goal in mind, and so were removed.
+    There were also more important variables with missing data, such as missing coordinates. Sadly, in these cases the entire datapoint had to be removed, since one of the core features of the visualization
+  was the dynamic connection between scatter plot and map. There were also other minor identifier or "burocratic" variables that were removed simply to minimize dataset size and loading speed.</p>
+
+  <h3>Write a short section that discusses the dataset stats, containing key points/plots from your exploratory data analysis.</h3>
+  <p>Some base statistics:
+    <ul>
+    <li>Size: 8.4 MB</li>
+    <li>Number of rows: 11746 (individual properties, buildings or building complexes)</li>
+    <li>Number of columns: 60
+      <p>A few examples:
+        <ul>
+          <li>Property Name</li>
+          <li>Property Type (Housing, Office, Hospital, Bank, Skating Rink etc.)</li>
+          <li>Property Gross Floor Area</li>
+          <li>EUI - Energy Use Intensity [kBTU/ft^2] (electricity, gas, steam etc.)</li>
+          <li>Green House Gas (GHG) emissions [metric tons per year]</li>
+          <li>Year Built (which ranges from 21st century back to 17th!)</li>
+          <li>Borough</li>
+          <li>Longitude/Latitude</li>
+        </ul></p></li>
+    </ul>
+      <figure>
+          <img class="inline" src="img/pre_analysis1.png" alt="pre_analysis1" width="500" align="right">
+      </figure>
+      <p>
+      It was an interesting finding in the early data analysis, that even though there quite a few very old buildings in the dataset, there seemed to be zero correlation
+     (negative or positive) between the year a property was built and basically any other energy/water metric (see fig. on the right). This seemed to be an interesting take-away considering show
+     much emphasis is put on building efficiency today (such as insulation, heating and ventilation systems or office lighting)</p>
+     <figure>
+         <img  class="inline" src="img/yb.png" alt="pre_analysis2" width="700" align="right">
+     </figure>
+
+     <p class="padded">
+     Another interesting take-away was to see some historical perspective thanks to the dataset being big enough. As seen above, the number of buildings built per year
+   seems to give an idea about events affecting the growth of NYC (as well as the Us as a whole probably) such as the Great Depression from 1929 onwards, World War 2, Black Monday (1987) and the Global Financial Crisis (2007-2008).</p>
+
+  </p>
+
+<h2>3. Genre</h2>
+  <h3>Which tools did you use from each of the 3 categories of Visual Narrative (Figure 7 in Segal and Heer). Why?</h3>
+  <ul>
+    <li>Visual Structuring:
+      <p>The aim was to use a "consistent visual platform", since otherwise the page could have been very overwhelming (regarding colors, datapoint styling etc.)</p>
+    </li>
+    <li>Highlighting:
+      <p>"Close-ups" and "Zooming" was used to make the visualization more "on-demand", and not to start out with the details, but rather an overview.
+         "Feature Distinction" was also used to make interaction with the data-points feasible.</p>
+    </li>
+    <li>Transition Guidance:
+     <p>"Object continuity" and "Animated transitions" were used in order to make the user experience smoother, as changing a lot at once on screen can disorient someone.</p>
+    </li>
+  </ul>
+
+  <h3>Which tools did you use from each of the 3 categories of Narrative Structure (Figure 7 in Segal and Heer). Why?</h3>
+  <ul>
+    <li>Ordering:
+      <p>Both "Random Access" and "User Directed Path" were intended to be included, to allow a mix between an explanatory and exploratory visualization page.</p>
+    </li>
+    <li>Interactivity:
+      <p>"Hover Highlighting/Details", "Filtering/Selection/Search" were both used in order to allow an on-demand look at details of the datapoints of interest.
+       </p>
+    </li>
+    <li>Messaging:
+     <p>"Captions/headlines" were used to guide the user on e.g the map. An "Introductory Text" was used in the beginning to ease in the user if possible.
+        "Annotation" and an "Accompanying Article" were made in the Findings part of the page to guide the user through some interesting aspects of the data and to serve as examples for
+      further discovery.</p>
+    </li>
+  </ul>
+
+<h2>4. Visualizations</h2>
+  <h3>Explain the visualizations you’ve chosen.</h3>
+  <p>A customizable scatter-plot was chosen as the main "keyhole" through which the end-user can get a glimpse of the dataset.
+     To allow more details and more advanced takeaways, a dynamically updated map was added along with a
+     detailed information box. The scatter plot was made brushable to update the map, and data-points are clickable to
+   allow details on-demand, as well as highlighting on the map.</p>
+
+  <h3>Why are they right for the story you want to tell?</h3>
+  <p>Since the dataset contains many variables, static views would not have been enough, or rather there would have to be too many to cover the combinations
+  and would make the visualization non-user-friendly. Instead one main visualization with the flexibility to show variable combinations seemed to be a better choice. Of course, this also needs more planning
+and coding to make work.</p>
+
+<h2>5. Discussion</h2>
+  <h3>What went well?</h3>
+  <p>The visualization window ended up compact enough without becoming cluttered or missing too much information. Spending time on making the data-handling code
+  more general or flexible really paid off and allowed a better end-result. Implementing many mouse-events without major conflicts was also nice. </p>
+
+  <h3>What is still missing? What could be improved?, Why?</h3>
+  <p>The biggest performance issue is of course due to the use of SVGs in a dataset of this size.
+    Due to this, animations and transitions had to be limited. The best improvement for this would be the use of a canvas element.
+  An obvious missing feature is some sort of "basic statistics" window, that would show up after brushing a group of data-points. It would have been useful
+ to show e.g average values within selection, or top 3 property types within selection etc. This would have added depth to the possible discovery/exploration.</p>
+
+<h2>6. Contributions</h2>
+  <p>I worked alone in this project.</p>
+
+
     </div>
     </body>
 </html>
