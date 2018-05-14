@@ -11,11 +11,26 @@
     <body>
       <div class="navbar_header navbar">
         <a href="https://github.com/peters92/peters92.github.io" target="_blank">Github</a>
-        <a href="#exp_page" target="_blank">Explainer Page</a>
+        <a href="explainer.html" target="_blank">Explainer Page</a>
+        <a href="data/energy_water_2016_filtered_min.csv" target="_blank">Data</a>
+        <a href="https://data.cityofnewyork.us/Environment/Energy-and-Water-Data-Disclosure-for-Local-Law-84-/8u86-bviy" target="_blank">Data Source</a>
       </div>
+
     <div class="story_div header">
       <header>
-        <h1>whats up</h1>
+        <h1>Exploring New York through Energy data</h1>
+        <p>From 2009 onwards, according to Local Law 84 (of the city of New York) buildings over 50,000 ft<sup>2</sup> have to be benchmarked based on their yearly energy and water consumption.
+            This data is then gathered and is also made available through NYC’s open-data portal (see the button above for "Data Source").</p>
+        <p>The dataset contains many types of variables, mostly regarding energy of course. One of the most important units is <b>EUI</b> or Energy Use Intensity which is a nice indicator of efficiency
+          as it is normalized for the size of the property, its unit is kBTU/ft<sup></sup> (where BTU stands for british thermal unit and is ≈ 1.05 kJ). </p>
+        <p>EUI can be measured on site or at the source. It can also be normalized for the weather:</p>
+        <ul>
+          <li>Site EUI: measured on site at the property or building, including all the "direct" energy use.</li>
+          <li>Source EUI: measured at the source of energy generation. This includes all the energy used on site as well as the energy lost while suppying it to the property</li>
+          <li>Weather normalized: this means we average the consumption over 30 years, assuming average weather throughout.</li>
+        </ul>
+        <p>With all that said, feel free to explore the visualization below before getting to a more guided tour further down. You may come back at any time to change the settings of the plot or the brush window.</p>
+
       </header>
     </div>
 
@@ -219,7 +234,7 @@
         "",
         "",
         "Click on data points above",
-        "or hover on the map while zoomed in",
+        "or hover on the map while zoomed",
         "to display more information",
         "",
         "",
@@ -241,9 +256,24 @@
       var brush_box = map_svg.append("g")
                         .attr("class", "brush_info")
       brush_box.append("text")
-              .classed("brush_info_text", true)
-              .attr("x", map_w/4+18)
-              .attr("y", 40)
+              .classed("brush_info_text bline0", true)
+              .attr("x", 10)
+              .attr("y", 20)
+              .text("")
+      brush_box.append("text")
+              .classed("brush_info_text bline1", true)
+              .attr("x", 10)
+              .attr("y", 35)
+              .text("")
+      brush_box.append("text")
+              .classed("brush_info_text bline2", true)
+              .attr("x", 10)
+              .attr("y", 55)
+              .text("")
+      brush_box.append("text")
+              .classed("brush_info_text bline3", true)
+              .attr("x", 10)
+              .attr("y", 70)
               .text("")
       ////////////////////////////////////////////////////////////////////////
       /////////////////////////////// LOADING DATA ///////////////////////////
@@ -369,23 +399,23 @@
         //dictionary for nicer variable names, min and max values, filtered values and type distinction
         dict =
         {
-          year_built: {name: "Year built", min: NaN, max: NaN, filter: null, type: "year"},
-          gfa: {name: "Gross Floor Area [ft\u00B2] (acc. to Department of Finance)", min: 50000, max: NaN, filter: null, type: null},
-          property_GFA: {name: "Gross Floor Area [ft\u00B2]", min: 50000, max: NaN, filter: null, type: null},
-          es_score: {name: "Energy Star Score [1-100]", min: NaN, max: NaN, filter: null, type: null},
-          tot_ghg: {name: "Total GHG Emissions [metric tons CO\u00B2e/year]", min: NaN, max: NaN, filter: null, type: null},
-          num_buildings: {name: "Number of buildings on property", min: NaN, max: 35, filter: null, type: null},
-          water_use: {name: "Water use [kgal/year]", min: NaN, max: 1000000, filter: null, type: null},
-          water_intensity: {name: "Water Intensity [gal/ft\u00B2]", min: 1, max: 20000, filter: null, type: null},
+          year_built: {name: "Year built", min: NaN, max: NaN, filter: null, type: "int"},
+          gfa: {name: "Gross Floor Area [ft\u00B2] (acc. to Department of Finance)", min: 50000, max: NaN, filter: null, type: "int"},
+          property_GFA: {name: "Gross Floor Area [ft\u00B2]", min: 50000, max: NaN, filter: null, type: "int"},
+          es_score: {name: "Energy Star Score [1-100]", min: NaN, max: NaN, filter: null, type: "int"},
+          tot_ghg: {name: "Total GHG Emissions [tons CO\u00B2e/year]", min: 5, max: NaN, filter: null, type: "int"},
+          num_buildings: {name: "Number of buildings on property", min: NaN, max: 15, filter: null, type: "int"},
+          water_use: {name: "Water use [kgal/year]", min: NaN, max: 1000000, filter: null, type: "int"},
+          water_intensity: {name: "Water Intensity [gal/ft\u00B2]", min: 1, max: 2000, filter: null, type: "int"},
           lon: {name: "Longitude [°]", min: NaN, max: NaN, filter: null, type: null},
           lat: {name: "Latitude [°]", min: NaN, max: NaN, filter: null, type: null},
-          site_eui: {name: "Site EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: null},
-          source_eui: {name: "Source EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: null},
-          wn_site_eui: {name: "Weather Norm. site EUI [kBTU/ft\u00B2]", min: NaN, max: 10000, filter: null, type: null},
-          wn_source_eui: {name: "Weather Norm. source EUI [kBTU/ft\u00B2]", min: NaN, max: 10000, filter: null, type: null},
-          wn_site_electricity_intensity: {name: "Weather normalized site electricity intensity [kWh/ft\u00B2]", min: NaN, max: 150, filter: null, type: null},
-          electricity_use_grid_purchase: {name: "Electricity use, grid purchase [kBTU/year]", min: NaN, max: NaN, filter: null, type: null},
-          wn_site_electricity: {name: "Weather Norm. Electricity [MWh/year]", min: NaN, max: 100000, filter: null, type: null},
+          site_eui: {name: "Site EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: "int"},
+          source_eui: {name: "Source EUI [kBTU/ft\u00B2]", min: NaN, max: NaN, filter: null, type: "int"},
+          wn_site_eui: {name: "Weather Norm. site EUI [kBTU/ft\u00B2]", min: NaN, max: 2000, filter: null, type: "int"},
+          wn_source_eui: {name: "Weather Norm. source EUI [kBTU/ft\u00B2]", min: NaN, max: 2000, filter: null, type: "int"},
+          wn_site_electricity_intensity: {name: "Weather normalized site electricity intensity [kWh/ft\u00B2]", min: NaN, max: 150, filter: null, type: "int"},
+          electricity_use_grid_purchase: {name: "Electricity use, grid purchase [kBTU/year]", min: NaN, max: NaN, filter: null, type: "int"},
+          wn_site_electricity: {name: "Weather Norm. Electricity [MWh/year]", min: NaN, max: 100000, filter: null, type: "int"},
           boro: {name: "NYC Borough", min: NaN, max: NaN, filter: null, type: null},
           property_name: {name: "Property Name", min: NaN, max: NaN, filter: null, type: null},
           address_1: {name: "Address 1", min: NaN, max: NaN, filter: null, type: null},
@@ -961,11 +991,43 @@
                  })
           //Call map update function
           map_update(ew_data)
+
           //Update bursh info text
-          // d3.select(".brush_info_text")
-          //   .text(dict[x_selection].name+": "+parseInt(x_val[0])+" to "+parseInt(x_val[1]))
-          d3.select(".brush_info_text")
-            .text("Buildings built: "+parseInt(x_val[0])+" to "+parseInt(x_val[1]))
+          formatFloat = d3.format(",.4r");
+          //Type dependent formatting
+          if (dict[x_selection].type == "int")
+          {
+            x_val1 = parseInt(x_val[0]);
+            x_val2 = parseInt(x_val[1]);
+          }
+          else
+          {
+            x_val1 = formatFloat(x_val[0]);
+            x_val2 = formatFloat(x_val[1]);
+          }
+          if (dict[y_selection].type == "int")
+          {
+            y_val2 = parseInt(y_val[0]);
+            y_val1 = parseInt(y_val[1]);
+          }
+          else
+          {
+            y_val2 = formatFloat(y_val[0]);
+            y_val1 = formatFloat(y_val[1]);
+          }
+
+
+          d3.select(".bline0")
+            .text(dict[x_selection].name+": ")
+          d3.select(".bline1")
+            .text(x_val1+"\xa0 to \xa0"+x_val2)
+          d3.select(".bline2")
+            .text(dict[y_selection].name+": ")
+          d3.select(".bline3")
+            .text(y_val1+"\xa0 to \xa0"+y_val2)
+
+          // d3.select(".bline0")
+          //   .text("Buildings built: "+parseInt(x_val[0])+" to "+parseInt(x_val[1]))
 
 
         }
@@ -1282,12 +1344,36 @@
     </div>
     </div>
 
-    <div class="story_div">
-      <div>
-        <h1>test gif</h1>
-        <img src="img/buildings_built_1.gif" alt="tasty gif" width="400">
-        <img src="img/buildings_built_1_manhattan_central_park.gif" alt="tasty gif" height="400">
-      </div>
-    </div>
+<div class="story_div">
+  <div>
+    <h1>Findings</h1>
+    <p>There are many aspects of the data that can be looked at independently, here some of these will be detailed. Even though it seems very modern with its skyscrapers and sprawling concrete-jungle, New York is relatively old city.
+    Most of its buildings were built in the early 20<sup>th</sup> century. It would be interesting to see how those old buildings compare to today regarding sustainability and efficiency:</p>
+    <figure>
+      <img src="img/age_energy_star.png" alt="Age to Energy Star Score" width="800" align="middle">
+      <figcaption>Fig.1 There seems to be no correlation between how old a building is and its energy star score.</figcaption>
+    </figure>
+    <p>Based on the above figure, it doesn't seem to matter how old a building is, they can perform equally to modern ones.
+       (The energy star score is a comparison to the distribution of all other properties of the same type. 50 is the median.)
+     Even Looking at other measures seem to indicate the same thing (see fig.2)</p>
+     <figure>
+       <img src="img/age_eui.png" alt="Age to source EUI" width="800" align="middle">
+       <figcaption>Fig.2 Energy use efficiency seems to not have improved over time.</figcaption>
+     </figure>
+    <p>Of course it is also a valid argument to say that old buildings are kept up-to-date with renovations and newer energy systems being used.</p>
+    <p>Using the map, we can also see clearly the distribution of certain properties, such as the highest electricity users:</p>
+     <figure>
+       <img src="img/top_energy_users.gif" alt="Top energy users" width="700" align="middle">
+       <figcaption>Fig.3 A look at the highest yearly electricity users.</figcaption>
+     </figure>
+    <p>Perhaps not surprisingly, we can cleary pick out some well known areas as the culprits. The buildings around Times Square and the tip of Lower Manhattan probably have quite the electricity bill.</p>
+
+    <p></p>
+    <p></p>
+
+    <img src="img/buildings_built_1.gif" alt="tasty gif" width="400">
+    <img src="img/buildings_built_1_manhattan_central_park.gif" alt="tasty gif" height="400">
+  </div>
+</div>
     </body>
 </html>

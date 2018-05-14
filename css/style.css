@@ -10,16 +10,36 @@ body{
   fill: rgb(32,32,32);
   display: table-cell;
   horizontal-align: middle;
-  /* max-width: 1100px; */
 }
-body.navbar_header{
-  max-width: 2000px;
+.story_div{
+  max-width: 820px;
 }
 h1{
   text-align: center;
   font-family: Arial;
   color: rgb(200,200,200);
   font-weight: bold;
+}
+p, ul{
+  text-align: justify;
+  font-family: Arial;
+  color: rgb(200,200,200);
+  font-weight: normal;
+  margin-left: 15pt;
+  margin-right: 15pt;
+  padding: 30pt;
+}
+img{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  /* width: 50%; */
+}
+figcaption{
+  text-align: center;
+  font-family: Arial;
+  color: rgb(160,160,160);
+  font-style: italic;
 }
 
 .story_div{
@@ -64,8 +84,8 @@ h1{
 }
 .crosshair .visible{
   stroke: rgb(200,200,200);
-  opacity: 0.5;
-  stroke-width: 0.07em;
+  opacity: 0.8;
+  stroke-width: 0.09em;
   stroke-dasharray: 3,3;
 }
 /* INFO BOX */
@@ -93,7 +113,7 @@ text.line4 {
   font-weight: bold;
 }
 text.line5 {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: bold;
 }
 text.line7 {
@@ -108,9 +128,9 @@ text.line9 {
 /* BRUSH INFO */
 .brush_info text{
   opacity: 1;
-  text-anchor: middle;
+  text-anchor: left;
   font-family: Arial;
-  font-size: 18px;
+  font-size: 14px;
   fill: rgb(200,200,200);
   font-weight: normal;
 }
